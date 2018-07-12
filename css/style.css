@@ -1,0 +1,49 @@
+/* The sidebar menu */
+.sidenav {
+    height: 100%; 
+    width: 500px; 
+    position: fixed;
+    top: 0; 
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+/*menudef and itemdef options*/
+.option{
+    margin: 10px;
+    background-color: rgb(36, 35, 35);
+    width: 100%;
+    
+}
+
+.optionstextbox{
+    resize: none;
+}
+
+
+
+/* Style page content */
+.main {
+    margin-left: 160px; /* Same as the width of the sidebar */
+    padding: 0px 10px;
+}
+
+/*canvas stlye*/
+.canvas{
+    margin-left: 30%;
+    margin-top: 10%;
+    padding: 0px;
+    width: 640px; 
+    height: 480px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #111;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
