@@ -47,17 +47,17 @@ ItemDef = function(itemname){
         decorate: 1,
     }
     this.options = {
-        name: false,
-        rect: false,
-        style: false,
-        backcolor: false,
+        name: true,
+        rect: true,
+        style: true,
+        backcolor: true,
         forecolor: false,
-        visible: false,
+        visible: true,
         exp: false,
         border: false,
         bordersize: false,
         bordercolor: false,
-        type: false,
+        type: true,
         text: false,
         textscale: false,
         textalign: false,
@@ -68,13 +68,53 @@ ItemDef = function(itemname){
         leaveFocus: false,
         mouseEnter: false,
         mouseExit: false,
-        decorate: false,
+        decorate: true,
     }
 
     this.draw = () =>{
-        ctx.fillText(this.prop.rect.aligny, 10, 10);
+        ctx.fillText(this.options.rect, 10, 10);
+    }
+}
+
+MenuDef = function(menuName){
+    this.prop = {
+        name: itemname,
+        rect: {
+            x: 0,
+            y: 0,
+            width: 10,
+            height: 10,
+        },
+        visible: 1,
+        border: 1,
+        bordersize: 0,
+        bordercolor: {
+            r: 0.5,
+            g: 0.5,
+            b: 0.5,
+            a: 1,
+        },
+        onOpen: "",
+        onClose: "",
+        onESC: "close self;",
+
+    }
+    this.options = {
+        name: true,
+        rect: true,
+        visible: true,
+        border: false,
+        bordersize: false,
+        onOpen: true,
+        onClose: true,
+        onESC: true,
     }
 
+    this.itemDefList = [];
+
+    this.draw = () =>{
+
+    }
 }
 
 //animation loop
@@ -100,33 +140,51 @@ document.getElementById("newitemdef").addEventListener("click", () =>{
 
 //add event listeners to all itemdef option boxes
 itemDefEventListeners = () =>{
-    for(var option in  new ItemDef("x").prop){
-        const elm = document.getElementById(option);
+
+    for(var option in new ItemDef("x").prop){
+        const elm = document.getElementById(option + "_item");
         if (elm != null) {
+            setEventListenerEnable(elm, option);
             if (elm.className == "multitext"){
                 var tag1 = [];
                 var tag2 = [];
                 tag1 = elm.getElementsByTagName("input");
                 tag2 = elm.getElementsByTagName("select");
                 for (var i = 0; i < tag1.length; i++) {
-                    setEventListener(tag1[i], elm.id);
+                    setEventListenerInputs(tag1[i], option);
                 }
                 for (var i = 0; i < tag2.length; i++) {
-                    setEventListener(tag2[i], elm.id);
+                    setEventListenerInputs(tag2[i], option);
                 }
             }
             else{
-                setEventListener(elm, undefined);
+                setEventListenerInputs(elm, undefined);
             }  
         }
-        function setEventListener(element, id2){
+
+        function setEventListenerEnable(element, op){
+            //enabled check box listeners
+            var enablebox = document.getElementById(op + "_enable");
+            if (enablebox != null) {
+                enablebox.addEventListener("change", (event) => {
+                    if (selectedItemDef != null) {
+                        itemDefs[selectedItemDef].options[op] = !itemDefs[selectedItemDef].options[op];
+                        updateItemDefOptions(selectedItemDef);
+                    }
+                })
+            }
+        }
+        function setEventListenerInputs(element, id2){
+            
+            //input box listeners
             if (element.className == "optioncheckbox") {
                 element.addEventListener("change", (event) => {
                     if (selectedItemDef != null) {
+                        var tkn = event.target.id.split("_");
                         if(id2 != null){
-                            itemDefs[selectedItemDef].prop[id2][event.target.id] = event.target.checked == true ? 1 : 0;
+                            itemDefs[selectedItemDef].prop[id2][tkn[0]] = event.target.checked == true ? 1 : 0;
                         }else{
-                            itemDefs[selectedItemDef].prop[event.target.id] = event.target.checked == true ? 1 : 0;
+                            itemDefs[selectedItemDef].prop[tkn[0]] = event.target.checked == true ? 1 : 0;
                         }
                     }
                 })
@@ -134,11 +192,12 @@ itemDefEventListeners = () =>{
             if (element.className == "optionstextbox"){
                 element.addEventListener("input", (event) =>{
                     if (selectedItemDef != null){
+                        var tkn = event.target.id.split("_");
                         if(id2 != null){
-                            itemDefs[selectedItemDef].prop[id2][event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[id2][tkn[0]] = event.target.value;
                         }
                         else{
-                            itemDefs[selectedItemDef].prop[event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[tkn[0]] = event.target.value;
                         }
                     }
                 })
@@ -146,11 +205,12 @@ itemDefEventListeners = () =>{
             if (element.className == "optionnumberbox"){
                 element.addEventListener("input", (event) =>{
                     if(selectedItemDef != null){
+                        var tkn = event.target.id.split("_");
                         if(id2 != null){
-                            itemDefs[selectedItemDef].prop[id2][event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[id2][tkn[0]] = event.target.value;
                         }
                         else{
-                            itemDefs[selectedItemDef].prop[event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[tkn[0]] = event.target.value;
                         }
                     }
                 })
@@ -158,11 +218,12 @@ itemDefEventListeners = () =>{
             if (element.className == "optionselectbox"){
                 element.addEventListener("change", (event) =>{
                     if(selectedItemDef != null){
+                        var tkn = event.target.id.split("_");
                         if(id2 != null){
-                            itemDefs[selectedItemDef].prop[id2][event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[id2][tkn[0]] = event.target.value;
                         }
                         else{
-                            itemDefs[selectedItemDef].prop[event.target.id] = event.target.value;
+                            itemDefs[selectedItemDef].prop[tkn[0]] = event.target.value;
                         }
                     }
                 })
@@ -185,16 +246,21 @@ newItemDef = () =>{
 
 //update the options side bar for items defs
 updateItemDefOptions = (num) =>{
+    //loop though all itemdef options
     for(var option in itemDefs[num].prop){
-        const elm = document.getElementById(option);
+        //get the element with the same id
+        const elm = document.getElementById(option + "_item");
         if(elm != null){
+            //if the element has multiple inputs
             if (elm.className == "multitext") {
                 var tag1 = [];
                 var tag2 = [];
                 var tkn = []
-                //this wont work is select tag is before input tags
+                //this wont work if select tag is before input tags
+                //get inputs from there tag names
                 tag1 = elm.getElementsByTagName("input");
                 tag2 = elm.getElementsByTagName("select");
+                //create an array including all the input boxes
                 for(var i = 0; i<tag1.length; i++){
                     tkn.push(tag1[i]);
                 }
@@ -202,20 +268,26 @@ updateItemDefOptions = (num) =>{
                     tkn.push(tag2[i]);
                 }
                 var index = 0;
+                //for each inputbox we set the value
                 for (var option2 in itemDefs[num].prop[option]){     
-                    setElmValue(tkn[index], itemDefs[num].prop[option][option2]);
+                    setElmValue(tkn[index], itemDefs[num].prop[option][option2], itemDefs[num].options[option], option);
                     index++;
                 }
             }
             else{
-                setElmValue(elm, itemDefs[num].prop[option])
+                setElmValue(elm, itemDefs[num].prop[option], itemDefs[num].options[option], option);
             }
         } 
-        function setElmValue(element, val) {
+        function setElmValue(element, val, enabled, optionname) {
+            //enabled check box
+            var enabledbox = document.getElementById(optionname + "_enable");
+            if (enabledbox != null) enabledbox.checked = enabled;
+            element.disabled = !enabled;
+
             if (element.className == "optionstextbox") {
-                //element.value = "";
                 element.innerHTML = "";
                 element.appendChild(document.createTextNode(val));
+                
             }
             if (element.className == "optioncheckbox") {
                 element.checked = val == 1 ? true : false;
