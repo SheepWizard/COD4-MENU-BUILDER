@@ -5,24 +5,121 @@
 
     <body>
         <div class="sidenav">
+            <div class="menudeflist" id="menudeflist">
+                <p1>MenuDef list</p1>
+            </div>
+
             <div class="menudefoptions" id="menudefoptions">
+                <button type="button" id="newmenudef">New menuDef</button>
                 <table id="menudefoptiontable">
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="">
+                            <input type="checkbox" class="enabledcheckbox" id="name_menu_enable">
                         </td>
                         <td>name</td>
                         <td>
-                            <textarea row="1" class="optionstextbox" id=""></textarea>
+                            <textarea row="1" class="optionstextbox" id="name_menu"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="rect_menu_enable">
+                        </td>
+                        <td>rect</td>
+                        <td>
+                            <div id="rect_menu" class="multitext">
+                                <input type="number" class="optionnumberbox" id="x_menu">
+                                <input type="number" class="optionnumberbox" id="y_menu">
+                                <input type="number" class="optionnumberbox" id="width_menu">
+                                <input type="number" class="optionnumberbox" id="height_menu">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="visible_menu_enable">
+                        </td>
+                        <td>visible</td>
+                        <td>
+                            <input type="checkbox" class="optioncheckbox" id="visible_menu">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="border_menu_enable">
+                        </td>
+                        <td>border</td>
+                        <td>
+                            <select class="optionselectbox" id="border_menu">
+                                <option value="0">WINDOW_BORDER_NONE</option>
+                                <option value="1">WINDOW_BORDER_FULL</option>
+                                <option value="2">WINDOW_BORDER_HORZ</option>
+                                <option value="3">WINDOW_BORDER_VERT</option>
+                                <option value="4">WINDOW_BORDER_KCGRADIENT</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="bordersize_menu_enable">
+                        </td>
+                        <td>bordersize</td>
+                        <td>
+                            <input type="number" min="0" max="1" class="optionnumberbox" id="bordersize_menu">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="bordercolor_menu_enable">
+                        </td>
+                        <td>bordercolor</td>
+                        <td>
+                            <div id="bordercolor_menu" class="multitext">
+                                <input type="number" min="0" max="1" class="optionnumberbox" id="r_menu">
+                                <input type="number" min="0" max="1" class="optionnumberbox" id="g_menu">
+                                <input type="number" min="0" max="1" class="optionnumberbox" id="b_menu">
+                                <input type="number" min="0" max="1" class="optionnumberbox" id="a_menu">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="enabledcheckbox" id="onOpen_menu_enable">
+                        </td>
+                        <td>onOpen</td>
+                        <td>
+                            <textarea row="1" class="optionstextbox" id="onOpen_menu"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="" id="onClose_menu_enable">
+                        </td>
+                        <td>onClose</td>
+                        <td>
+                            <textarea row="1" class="optionstextbox" id="onClose_menu"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="" id="onClose_menu_enable">
+                        </td>
+                        <td>onClose</td>
+                        <td>
+                            <textarea row="1" class="optionstextbox" id="onClose_menu"></textarea>
                         </td>
                     </tr>
                 </table>
+                <div class="itemdeflist" id="itemdeflist">
+                    <p1>ItemDef list</p1>
+                </div>
             </div>
 
             <div class="itemdefoptions" id="itemdefoptions">
+                <button type="button" id="newitemdef">New itemDef</button>
                 <table id="itemdefoptiontable">
                     <tr>
-                        <td><input type="checkbox" class="enabledcheckbox" id="name_enable"></td>
+                        <td><input type="checkbox" class="enabledcheckbox" id="name_item_enable"></td>
                         <td>name</td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="name_item"></textarea>
@@ -30,7 +127,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="rect_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="rect_item_enable">
                         </td>
                         <td>rect</td>
                         <td>
@@ -56,7 +153,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="style_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="style_item_enable">
                         </td>
                         <td>style</td>
                         <td>
@@ -69,7 +166,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="backcolor_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="backcolor_item_enable">
                         </td>
                         <td>backcolor</td>
                         <td>
@@ -83,7 +180,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="forecolor_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="forecolor_item_enable">
                         </td>
                         <td>forecolor</td>
                         <td>
@@ -97,21 +194,21 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="visible_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="visible_item_enable">
                         </td>
                         <td>visible</td>
                         <td><input type="checkbox" class="optioncheckbox" id="visible_item"></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="exp_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="exp_item_enable">
                         </td>
                         <td>exp</td>
                         <td><textarea row="1" class="optionstextbox" id="exp_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="border_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="border_item_enable">
                         </td>
                         <td>border</td>
                         <td>
@@ -126,14 +223,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="bordersize_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="bordersize_item_enable">
                         </td>
                         <td>bordersize</td>
                         <td><input type="number" min="0" max="1" class="optionnumberbox" id="bordersize_item"></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="bordercolor_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="bordercolor_item_enable">
                         </td>
                         <td>bordercolor</td>
                         <td>
@@ -148,7 +245,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="type_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="type_item_enable">
                         </td>
                         <td>type</td>
                         <td><select class="optionselectbox" id="type_item">
@@ -158,21 +255,21 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="text_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="text_item_enable">
                         </td>
                         <td>text</td>
                         <td><textarea row="1" class="optionstextbox" id="text_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="textscale_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="textscale_item_enable">
                         </td>
                         <td>textscale</td>
                         <td><input type="number" class="optionnumberbox" id="textscale_item" min="0"></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="textalign_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="textalign_item_enable">
                         </td>
                         <td>textalign</td>
                         <td>
@@ -185,7 +282,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="textalignx_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="textalignx_item_enable">
                         </td>
                         <td>textalignx</td>
                         <td>
@@ -194,14 +291,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="textaligny_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="textaligny_item_enable">
                         </td>
                         <td>textaligny</td>
                         <td><input type="number" class="optionnumberbox" id="textaligny_item"></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="background_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="background_item_enable">
                         </td>
                         <td>background</td>
                         <td>
@@ -210,35 +307,35 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="onFocus_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="onFocus_item_enable">
                         </td>
                         <td>onFocus</td>
                         <td><textarea row="1" class="optionstextbox" id="onFocus_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="leaveFocus_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="leaveFocus_item_enable">
                         </td>
                         <td>leaveFocus</td>
                         <td><textarea row="1" class="optionstextbox" id="leaveFocus_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="mouseEnter_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="mouseEnter_item_enable">
                         </td>
                         <td>mouseEnter</td>
                         <td><textarea row="1" class="optionstextbox" id="mouseEnter_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="mouseExit_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="mouseExit_item_enable">
                         </td>
                         <td>mouseExit</td>
                         <td><textarea row="1" class="optionstextbox" id="mouseExit_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="decorate_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="decorate_item_enable">
                         </td>
                         <td>decorate</td>
                         <td>
@@ -248,7 +345,7 @@
 
                 </table>
 
-                <button type="button" id="newitemdef">New itemdef</button>
+                
             </div>
         </div>
 
