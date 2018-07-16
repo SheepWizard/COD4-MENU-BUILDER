@@ -74,7 +74,7 @@ ItemDef = function(itemname){
     this.menuDefIndex;
 
     this.draw = () =>{
-        ctx.fillText("itemdef  " + this.prop.type, 10, 10);
+        ctx.fillText("itemdef  " + this.prop.name, 10, 10);
         if(this.options.visible){
             if(this.prop.visible){
 
@@ -163,6 +163,7 @@ newMenuDef = () =>{
     selectedMenuDef = menuDefs.length;
     menuDefs.push(new MenuDef("menu_"+menuDefs.length));
     updateOptions();
+    updateMenuDefTable();
 }
 
 //create a new item def
@@ -179,6 +180,103 @@ newItemDef = () => {
     menuDefs[selectedMenuDef].itemDefList.push(new ItemDef("item_" + menuDefs[selectedMenuDef].itemDefList.length));
     menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length-1;
     updateOptions();
+    updateItemDefTable();
+}
+
+updateMenuDefTable = () =>{
+    const table = document.getElementById("menudeflist");
+    table.innerHTML = "";
+    for(var i = 0; i<menuDefs.length; i++){
+        const tr = document.createElement("tr");
+        const name = document.createElement("td");
+        name.appendChild(document.createTextNode(menuDefs[i].prop.name));
+
+        const select = document.createElement("td");
+        const button1 = document.createElement("button");
+        button1.type = "button";
+        button1.id = "menudefselect_" + i;
+        button1.appendChild(document.createTextNode("Select"));
+        button1.addEventListener("click", (event) =>{
+            const id = event.target.id.split("_");        
+            selectedMenuDef = id[1];
+            updateOptions();
+        })
+        select.appendChild(button1);
+
+        const del = document.createElement("td");
+        const button2 = document.createElement("button");
+        button2.type = "button";
+        button2.id = "menudefdelete_" + i;
+        button2.appendChild(document.createTextNode("Delete"));
+        button2.addEventListener("click", (event) =>{
+            const id = event.target.id.split("_");
+            menuDefs.splice(id[1], 1);
+            if(menuDefs.length != 0){
+                selectedMenuDef = menuDefs.length-1;
+                updateOptions();
+            }
+            else{
+                selectedMenuDef = null;
+            }    
+            updateMenuDefTable();
+        })
+        del.appendChild(button2)
+
+        tr.appendChild(name);
+        tr.appendChild(select);
+        tr.appendChild(del);
+        table.appendChild(tr);
+    }
+}
+
+updateItemDefTable = () =>{
+    const table = document.getElementById("itemdeflist");
+    table.innerHTML = "";
+    if(menuDefs.length != 0){
+        for (var i = 0; i < menuDefs[selectedMenuDef].itemDefList.length; i++){
+            const def = menuDefs[selectedMenuDef].itemDefList[i];
+            const tr = document.createElement("tr");
+            const name = document.createElement("td");
+            name.appendChild(document.createTextNode(def.prop.name));
+
+            const select = document.createElement("td");
+            const button1 = document.createElement("button");
+            button1.type = "button";
+            button1.id = "itemdefselected_" + i;
+            button1.appendChild(document.createTextNode("Select"));
+            button1.addEventListener("click", (event) => {
+                const id = event.target.id.split("_");
+                menuDefs[selectedMenuDef].selectedItemDef = id[1];
+                updateOptions();
+            })
+            select.appendChild(button1);
+
+            const del = document.createElement("td");
+            const button2 = document.createElement("button");
+            button2.type = "button";
+            button2.id = "itemdefdeleted_" + i;
+            button2.appendChild(document.createTextNode("Delete"));
+            button2.addEventListener("click", (event) => {
+                const id = event.target.id.split("_");
+                menuDefs[selectedMenuDef].itemDefList.splice(id[1], 1);
+                if (menuDefs[selectedMenuDef].itemDefList.length != 0) {
+                    menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
+                    updateOptions();
+                }
+                else {
+                    menuDefs[selectedMenuDef].selectedItemDef = null;
+                }
+                updateItemDefTable();
+            })
+            del.appendChild(button2)
+
+            tr.appendChild(name);
+            tr.appendChild(select);
+            tr.appendChild(del);
+            table.appendChild(tr);
+        }
+    }
+    
 }
 
 //add event listeners to all itemdef option boxes
@@ -229,7 +327,7 @@ optionsEventListeners = () =>{
     }
     function setEventListenerEnable(id, option){
         //enabled check box listeners
-        var enablebox = document.getElementById(id + "_enable");
+        const enablebox = document.getElementById(id + "_enable");
         if (enablebox != null) {
             enablebox.addEventListener("change", (event) => {
                 var tkn = event.target.id.split("_");
@@ -303,6 +401,14 @@ optionsEventListeners = () =>{
                         def.prop[tkn[0]] = event.target.value;
                     }
                 }
+                //update menuDef table
+                if(event.target.id == "name_menu"){
+                    updateMenuDefTable();
+                }
+                //update itemDef table
+                if(event.target.id == "name_item"){
+                    updateItemDefTable();
+                }
             })
         }
 
@@ -370,39 +476,33 @@ updateOptions = () =>{
                     var index = 0;
                     //for each inputbox we set the value
                     for (var option2 in itemDef.prop[option]) {
-                        setElmValue(tkn[index], itemDef.prop[option][option2], itemDef.options[option], option);
+                        setElmValue(tkn[index], itemDef.prop[option][option2], itemDef.options[option]);
                         index++;
                     }
                 }
                 else {
-                    setElmValue(elm, itemDef.prop[option], itemDef.options[option], option);
+                    setElmValue(elm, itemDef.prop[option], itemDef.options[option]);
                 }
             }
         }
     }
     
-    function setElmValue(element, val, enabled, optionname) {
+    function setElmValue(element, val, enabled) {
         //enabled check box
-        var enabledbox = document.getElementById(optionname + "_enable");
+        var enabledbox = document.getElementById(element.id + "_enable");
         if (enabledbox != null) enabledbox.checked = enabled;
         element.disabled = !enabled;
-
-        if (element.className == "optionstextbox") {
-            element.innerHTML = "";
-            element.appendChild(document.createTextNode(val));
-
-        }
         if (element.className == "optioncheckbox") {
             element.checked = val == 1 ? true : false;
         }
         if (element.className == "optionselectbox") {
-            for (let i = 0; i < element.length; i++) {
+            for (var i = 0; i < element.length; i++) {
                 if (element[i].value == val) {
                     element[i].selected = "selected";
                 }
             }
         }
-        if (element.className == "optionnumberbox") {
+        if (element.className == "optionnumberbox" || element.className == "optionstextbox") {
             element.value = val;
         }
     }
@@ -416,5 +516,5 @@ const ctx = canvas.getContext("2d");
 requestAnimationFrame(loop);
 
 //fix blurryness
-//textbox value does not update on new itemdef if textbox contains text
+//deleting menudef where there is only 2 deletes wrong one
 
