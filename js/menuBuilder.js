@@ -94,9 +94,8 @@
                 width: 640,
                 height: 480,
             },
-            visible: 1,
             border: 1,
-            bordersize: 0,
+            bordersize: 5,
             bordercolor: {
                 r: 0.5,
                 g: 0.5,
@@ -111,7 +110,6 @@
         this.options = {
             name: true,
             rect: true,
-            visible: true,
             border: true,
             bordersize: true,
             bordercolor: true,
@@ -124,7 +122,41 @@
         this.selectedItemDef;
 
         this.draw = () =>{
-            
+            if(this.options.visible){
+                if(!this.prop.visible){
+                    canvas.style.display = "none";
+                }
+                else{
+                    canvas.style.display = "block";
+                }
+            }
+            if(!this.options.rect){
+                canvas.width = 0 * zoomAmount;
+                canvas.height = 0 * zoomAmount;
+            }
+            else{
+                canvas.width = this.prop.rect.width * zoomAmount;
+                canvas.height = this.prop.rect.height * zoomAmount;
+               // screen.width = screen.width * zoomAmount;
+                //screen.height = screen.height * zoomAmount;
+            }
+            if(this.options.border && this.options.bordercolor){
+                var bordersize = 1;
+                if(this.options.bordersize){
+                    bordersize = this.prop.bordersize;
+                }
+                if(this.prop.border != 0){
+                    var colour = {
+                        r: this.prop.bordercolor.r,
+                        g: this.prop.bordercolor.g,
+                        b: this.prop.bordercolor.b,
+                        a: this.prop.bordercolor.a,
+                    }
+                    drawBorder(this.prop.rect.x*zoomAmount, this.prop.rect.y*zoomAmount, this.prop.rect.width*zoomAmount, this.prop.rect.height*zoomAmount, this.prop.bordersize*zoomAmount, this.prop.border, colour);
+                }
+            }
+
+
 
 
             for (var i = 0; i < this.itemDefList.length; i++) {
@@ -132,7 +164,7 @@
             }     
         }
     }
-
+    //720x480
     //animation loop
     function loop(){
         requestAnimationFrame(loop);
@@ -142,6 +174,98 @@
         }  
     }
 
+    //draw border function
+    drawBorder = (x,y, width, height, bsize, type, colour) =>{
+       
+        if(type == 1){
+            ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
+            //top
+            ctx.beginPath();
+            ctx.rect(x, y, x+width, y+bsize);
+            ctx.fill();
+            //left
+            ctx.beginPath();
+            ctx.rect(x, y, x+bsize, y+height);
+            ctx.fill();
+            //bottom
+            ctx.beginPath();
+            ctx.rect(x, (y+height)-bsize, x+width, y+height);
+            ctx.fill();
+            //right
+            ctx.beginPath();
+            ctx.rect((x+width)-bsize, y, x+width, y+height);
+            ctx.fill();
+        }
+        else if(type == 2){
+            ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
+            //top
+            ctx.beginPath();
+            ctx.rect(x, y, x + width, y + bsize);
+            ctx.fill();
+            //bottom
+            ctx.beginPath();
+            ctx.rect(x, (y + height) - bsize, x + width, y + height);
+            ctx.fill();
+        }
+        else if(type == 3){
+            ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
+            //left
+            ctx.beginPath();
+            ctx.rect(x, y, x + bsize, y + height);
+            ctx.fill();
+            //right
+            ctx.beginPath();
+            ctx.rect((x + width) - bsize, y, x + width, y + height);
+            ctx.fill();
+        }
+        else if(type == 5 || type == 6){
+            if(type == 5){
+                ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
+            }
+            else{
+                ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
+            }
+            //top
+            ctx.beginPath();
+            ctx.moveTo(x,y);
+            ctx.lineTo(x+width,y);
+            ctx.lineTo((x+width)-bsize, y+bsize);
+            ctx.lineTo(x+bsize,y+bsize);
+            ctx.fill();
+            //left
+            ctx.beginPath();
+            ctx.moveTo(x,y);
+            ctx.lineTo(x,y+height);
+            ctx.lineTo(x+bsize, (y+height)-bsize);
+            ctx.lineTo(x+bsize,y+bsize);
+            ctx.fill();
+            if (type == 6) {
+                ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
+            }
+            else {
+                ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
+            }
+            //right
+            ctx.beginPath();
+            ctx.moveTo(x+width,y);
+            ctx.lineTo(x+width,y+height);
+            ctx.lineTo((x+width)-bsize, (y+height)-bsize);
+            ctx.lineTo((x+width)-bsize, y+bsize);
+            ctx.fill();
+            //bottom
+            ctx.beginPath();
+            ctx.moveTo(x,y+height);
+            ctx.lineTo(x+width, y+height);
+            ctx.lineTo((x+width)-bsize, (y+height)-bsize);
+            ctx.lineTo(x+bsize, (y+height)-bsize);
+            ctx.fill();
+        }
+        
+    }
+
+    convertColour = (x) =>{
+        return x*255;
+    }
 
 
     //on windows loaded
@@ -156,6 +280,14 @@
 
     document.getElementById("newmenudef").addEventListener("click", () =>{
         newMenuDef();
+    })
+    document.getElementById("zoomin").addEventListener("click", () =>{
+        console.log(zoomAmount);
+        zoomAmount += 0.1;
+    })
+    document.getElementById("zoomout").addEventListener("click", () => {
+        console.log(zoomAmount);
+        zoomAmount -= 0.1;
     })
 
     //create a new menuDef
@@ -444,7 +576,6 @@
                     var index = 0;
                     //for each inputbox we set the value
                     for (var option2 in menuDef.prop[option]) {
-                        console.log(option);
                         setElmValue(tkn[index], menuDef.prop[option][option2], menuDef.options[option], option+"_menu");
                         index++;
                     }
@@ -521,16 +652,25 @@
         }
     }
 
-    
+    var screenSize = {
+        x: 720,
+        y: 480
+    }
+    var zoomAmount = 1;
     const menuDefs = [];
     var selectedMenuDef;
     const canvas = document.getElementById("canvas");
+    canvas.width = 0;
+    canvas.height = 0;
     const ctx = canvas.getContext("2d");
+
+
 
     requestAnimationFrame(loop);
 
     //fix blurryness
     //add copy menudef / itemdef option
+    //border is being exported as a string
 
     (function () {
         var textFile;

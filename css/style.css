@@ -39,11 +39,11 @@
     margin-left: 30%;
     margin-top: 10%;
     padding: 0px;
-    width: 640px; 
-    height: 480px;
+    /*remove border, just here for visual aid */
     border-style: solid;
     border-width: 2px;
     border-color: #111;
+    position: absolute;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */

@@ -6,7 +6,12 @@
 
     <body>
         <div class="sidenav">
-            <button type="button" id="export">Export menu</button>
+            <h2 style="color: aliceblue">IN DEVELOPMENT</h2>
+            <div class="buildoptions">
+                <button type="button" id="export">Export menu</button>
+                <button type="button" id="zoomin">Zoom in</button>
+                <button type="button" id="zoomout">Zoom out</button>
+            </div>
             <a download="export.menu" id="exportlink" style="display: block">Download</a>
             <div class="menudeflist">
                 <p1>MenuDef list</p1>
@@ -43,15 +48,6 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="visible_menu_enable">
-                        </td>
-                        <td>visible</td>
-                        <td>
-                            <input type="checkbox" class="optioncheckbox" id="visible_menu">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
                             <input type="checkbox" class="enabledcheckbox" id="border_menu_enable">
                         </td>
                         <td>border</td>
@@ -61,7 +57,8 @@
                                 <option value="1">WINDOW_BORDER_FULL</option>
                                 <option value="2">WINDOW_BORDER_HORZ</option>
                                 <option value="3">WINDOW_BORDER_VERT</option>
-                                <option value="4">WINDOW_BORDER_KCGRADIENT</option>
+                                <option value="5">WINDOW_BORDER_RAISED</option>
+                                <option value="6">WINDOW_BORDER_SUNKEN</option>
                             </select>
                         </td>
                     </tr>
@@ -71,7 +68,7 @@
                         </td>
                         <td>bordersize</td>
                         <td>
-                            <input type="number" min="0" max="1" class="optionnumberbox" id="bordersize_menu">
+                            <input type="number" min="0" class="optionnumberbox" id="bordersize_menu">
                         </td>
                     </tr>
                     <tr>
@@ -226,7 +223,8 @@
                                 <option value="1">WINDOW_BORDER_FULL</option>
                                 <option value="2">WINDOW_BORDER_HORZ</option>
                                 <option value="3">WINDOW_BORDER_VERT</option>
-                                <option value="4">WINDOW_BORDER_KCGRADIENT</option>
+                                <option value="5">WINDOW_BORDER_RAISED</option>
+                                <option value="6">WINDOW_BORDER_SUNKEN</option>
                             </select>
                         </td>
                     </tr>
@@ -360,6 +358,7 @@
         </div>
 
         <div class="main">
+            <!-- <canvas class="canvas" id="screencanvas"></canvas> -->
             <canvas class="canvas" id="canvas" ></canvas>
         </div>
 
