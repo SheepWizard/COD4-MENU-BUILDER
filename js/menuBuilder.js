@@ -1,4 +1,46 @@
 (function () {
+
+     //   BUGS   //
+    /*
+        fix blurryness 
+        border is being exported as a string
+    */
+
+    //   FEATURES TO ADD   //
+    /*
+        move menudef x / y
+        upload images
+        save progress
+        console showing onopen / onclose / onesc text
+        import menu files
+        import header files
+        support definitions
+        default shader list
+    */
+    //  VARIABLES   //  
+    var currentScreenImage = "screen_image_wide";
+    var showScreenImage = true;
+    var toggleOutline = true;
+    var zoomAmount = 1;
+    var selectedMenuDef;
+    const menuDefs = [];
+    const screenSize = {
+        x: 720,
+        y: 480
+    }
+    const menuCanvas = document.getElementById("canvas");
+    const ctx = menuCanvas.getContext("2d");
+    const screen = document.getElementById("screencanvas");
+    const screenctx = screen.getContext("2d");
+
+    menuCanvas.width = 0;
+    menuCanvas.height = 0;
+    screen.width = screenSize.x;
+    screen.height = screenSize.y;
+
+    requestAnimationFrame(loop);
+
+    //  CLASSES     //
     ItemDef = function(itemname){
         this.prop = {
             name: itemname,
@@ -123,23 +165,27 @@
         this.selectedItemDef;
 
         this.draw = () =>{
+            const xoffset = screenSize.x == 720 ? 40*zoomAmount : 0;
             if(this.options.visible){
                 if(!this.prop.visible){
-                    canvas.style.display = "none";
+                    menuCanvas.style.display = "none";
+                    return;
                 }
                 else{
-                    canvas.style.display = "block";
+                    menuCanvas.style.display = "block";
                 }
             }
             if(!this.options.rect){
-                canvas.width = 0 * zoomAmount;
-                canvas.height = 0 * zoomAmount;
+                menuCanvas.width = 0 * zoomAmount;
+                menuCanvas.height = 0 * zoomAmount;   
             }
             else{
-                canvas.width = this.prop.rect.width * zoomAmount;
-                canvas.height = this.prop.rect.height * zoomAmount;
-               // screen.width = screen.width * zoomAmount;
-                //screen.height = screen.height * zoomAmount;
+                
+                menuCanvas.width = screenSize.x * zoomAmount;
+                menuCanvas.height = screenSize.y * zoomAmount;
+                screen.width = screenSize.x * zoomAmount;
+                screen.height = screenSize.y * zoomAmount;           
+
             }
             if(this.options.blurworld){
                 screenctx.filter = "blur("+ this.prop.blurworld*2 +"px)";
@@ -156,19 +202,60 @@
                         b: this.prop.bordercolor.b,
                         a: this.prop.bordercolor.a,
                     }
-                    drawBorder(0, 0, this.prop.rect.width*zoomAmount, this.prop.rect.height*zoomAmount, this.prop.bordersize*zoomAmount, this.prop.border, colour);
+                    drawBorder(0 + xoffset, 0, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize*zoomAmount, this.prop.border, colour);
                 }
             }
-
-
-
 
             for (var i = 0; i < this.itemDefList.length; i++) {
                 this.itemDefList[i].draw();
             }     
         }
     }
-    //720x480
+
+    //  EVENT LISTENERS //
+    window.onload = () => {
+        optionsEventListeners();
+
+        document.getElementById("newitemdef").addEventListener("click", () => {
+            newItemDef();
+        })
+        //create a new menuDef
+        document.getElementById("newmenudef").addEventListener("click", () => {
+            newMenuDef();
+        })
+        //zoom in
+        document.getElementById("zoomin").addEventListener("click", () => {
+            zoomAmount += 0.1;
+        })
+        //zoom out
+        document.getElementById("zoomout").addEventListener("click", () => {
+            zoomAmount -= 0.1;
+        })
+        //toggle screen image
+        document.getElementById("imagetoggle").addEventListener("click", () => {
+            showScreenImage = !showScreenImage;
+        })
+        //toggle canvas outlines
+        document.getElementById("outlinetoggle").addEventListener("click", () => {
+            if (toggleOutline) {
+                screen.style.borderWidth = "0px";
+                menuCanvas.style.borderWidth = "0px";
+            }
+            else {
+                screen.style.borderWidth = "2px";
+                menuCanvas.style.borderWidth = "2px";
+            }
+            toggleOutline = !toggleOutline;
+
+        })
+        document.getElementById("screenratio").addEventListener("click", () => {
+            screenSize.x = screenSize.x == 640 ? 720 : 640;
+        })
+    }
+
+
+    //  FUNCTIONS   //
+
     //animation loop
     function loop(){
         requestAnimationFrame(loop);
@@ -180,7 +267,8 @@
         //we redraw the image incase a blur has been applied
         if (showScreenImage) {
             screenctx.clearRect(0, 0, screen.width, screen.height);
-            screenctx.drawImage(document.getElementById(currentScreenImage), 0, 0);
+            var img = document.getElementById(currentScreenImage);
+            screenctx.drawImage(img, 0, 0, screen.width, screen.height);
         }
         else {
             screenctx.clearRect(0, 0, screen.width, screen.height);
@@ -192,46 +280,25 @@
         //full
         if(type == 1){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
-            //top
-            ctx.beginPath();
-            ctx.rect(x, y, x+width, y+bsize);
-            ctx.fill();
-            //left
-            ctx.beginPath();
-            ctx.rect(x, y, x+bsize, y+height);
-            ctx.fill();
-            //bottom
-            ctx.beginPath();
-            ctx.rect(x, (y+height)-bsize, x+width, y+height);
-            ctx.fill();
-            //right
-            ctx.beginPath();
-            ctx.rect((x+width)-bsize, y, x+width, y+height);
-            ctx.fill();
+            drawBottom();
+            drawTop();
+            drawLeft();
+            drawRight();
+
         }
         //horizontal
         else if(type == 2){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //top
-            ctx.beginPath();
-            ctx.rect(x, y, x + width, y + bsize);
-            ctx.fill();
-            //bottom
-            ctx.beginPath();
-            ctx.rect(x, (y + height) - bsize, x + width, y + height);
-            ctx.fill();
+            drawTop();
+            drawBottom();
         }
         //vertical
         else if(type == 3){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //left
-            ctx.beginPath();
-            ctx.rect(x, y, x + bsize, y + height);
-            ctx.fill();
-            //right
-            ctx.beginPath();
-            ctx.rect((x + width) - bsize, y, x + width, y + height);
-            ctx.fill();
+            drawLeft();
+            drawRight();
         }
         //raised / sunked
         else if(type == 5 || type == 6){
@@ -241,39 +308,47 @@
             else{
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
             }
-            //top
-            ctx.beginPath();
-            ctx.moveTo(x,y);
-            ctx.lineTo(x+width,y);
-            ctx.lineTo((x+width)-bsize, y+bsize);
-            ctx.lineTo(x+bsize,y+bsize);
-            ctx.fill();
-            //left
-            ctx.beginPath();
-            ctx.moveTo(x,y);
-            ctx.lineTo(x,y+height);
-            ctx.lineTo(x+bsize, (y+height)-bsize);
-            ctx.lineTo(x+bsize,y+bsize);
-            ctx.fill();
+            drawTop();
+            drawLeft();
             if (type == 6) {
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             }
             else {
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
             }
-            //right
+            drawBottom();
+            drawRight();
+        }
+        function drawLeft(){
             ctx.beginPath();
-            ctx.moveTo(x+width,y);
-            ctx.lineTo(x+width,y+height);
-            ctx.lineTo((x+width)-bsize, (y+height)-bsize);
-            ctx.lineTo((x+width)-bsize, y+bsize);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x + bsize, (y + height) - bsize);
+            ctx.lineTo(x + bsize, y + bsize);
             ctx.fill();
-            //bottom
+        }
+        function drawTop(){
             ctx.beginPath();
-            ctx.moveTo(x,y+height);
-            ctx.lineTo(x+width, y+height);
-            ctx.lineTo((x+width)-bsize, (y+height)-bsize);
-            ctx.lineTo(x+bsize, (y+height)-bsize);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo((x + width) - bsize, y + bsize);
+            ctx.lineTo(x + bsize, y + bsize);
+            ctx.fill();
+        }
+        function drawRight(){
+            ctx.beginPath();
+            ctx.moveTo(x + width, y);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo((x + width) - bsize, (y + height) - bsize);
+            ctx.lineTo((x + width) - bsize, y + bsize);
+            ctx.fill();
+        }
+        function drawBottom() {
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo((x + width) - bsize, (y + height) - bsize);
+            ctx.lineTo(x + bsize, (y + height) - bsize);
             ctx.fill();
         }
         
@@ -282,46 +357,6 @@
     convertColour = (x) =>{
         return x*255;
     }
-
-
-    //on windows loaded
-    window.onload = () =>{
-        //setup event listeners for text area
-        optionsEventListeners();
-    }
-    //create a new itemdef
-    document.getElementById("newitemdef").addEventListener("click", () =>{
-        newItemDef();
-    })
-    //create a new menuDef
-    document.getElementById("newmenudef").addEventListener("click", () =>{
-        newMenuDef();
-    })
-    //zoom in
-    document.getElementById("zoomin").addEventListener("click", () =>{
-        zoomAmount += 0.1;
-    })
-    //zoom out
-    document.getElementById("zoomout").addEventListener("click", () => {
-        zoomAmount -= 0.1;
-    })
-    //toggle screen image
-    document.getElementById("imagetoggle").addEventListener("click", () =>{
-        showScreenImage = !showScreenImage;
-    })
-    //toggle canvas outlines
-    document.getElementById("outlinetoggle").addEventListener("click", () =>{
-        if (toggleOutline){
-            screen.style.borderWidth = "0px";
-            canvas.style.borderWidth = "0px";
-        }
-        else{
-            screen.style.borderWidth = "2px";
-            canvas.style.borderWidth = "2px";
-        }
-        toggleOutline = !toggleOutline;
-        
-    })
 
     //create a new menuDef
     newMenuDef = () =>{
@@ -768,45 +803,7 @@
         }
     }
 
-    var screenSize = {
-        x: 720,
-        y: 480
-    }
-    var currentScreenImage = "screen_image_wide";
-    var showScreenImage = true;
-    var toggleOutline = true;
-    var zoomAmount = 1;
-    const menuDefs = [];
-    var selectedMenuDef;
-    const canvas = document.getElementById("canvas");
-    canvas.width = 0;
-    canvas.height = 0;
-    const ctx = canvas.getContext("2d");
-    const screen = document.getElementById("screencanvas");
-    screen.width = 720;
-    screen.height = 480;
-    const screenctx = screen.getContext("2d");
 
-
-    requestAnimationFrame(loop);
-
-    //   BUGS   //
-    /*
-        fix blurryness 
-        border is being exported as a string
-    */
-
-    //   FEATURES TO ADD   //
-    /*
-        different resolution background images
-        upload images
-        save progress
-        console showing onopen / onclose / onesc text
-        import menu files
-        import header files
-        support definitions
-
-    */
 
     (function () {
         var textFile;
@@ -900,5 +897,4 @@
             return text;
         }
     })(); 
-
 })();
