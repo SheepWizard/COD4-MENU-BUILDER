@@ -11,6 +11,8 @@
                 <button type="button" id="export">Export menu</button>
                 <button type="button" id="zoomin">Zoom in</button>
                 <button type="button" id="zoomout">Zoom out</button>
+                <button type="button" id="imagetoggle">Toggle game image</button>
+                <button type="button" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
             </div>
             <a download="export.menu" id="exportlink" style="display: block">Download</a>
             <div class="menudeflist">
@@ -27,7 +29,11 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="name_menu_enable">
                         </td>
-                        <td>name</td>
+                        <td>
+                            <div class="tooltip">Name
+                                <span class="tooltiptext">This is the name of the MenuDef. This name will be used for opening / closing the menu in GSC.</span>
+                            </div>
+                         </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="name_menu"></textarea>
                         </td>
@@ -36,7 +42,13 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="rect_menu_enable">
                         </td>
-                        <td>rect</td>
+                        <td>
+                            <div class="tooltip">rect
+                                <span class="tooltiptext">Define a rectangle on the screen for the menu to occupy. Menu rectangles may overlap; the last rect defined sits on top.
+                                Nested items are offset from this rect's left and top edges (meaning this rect acts as a new "mini-screen" for coordinates
+                                for the items inside). ItemDefs can be drawn outside the MenuDef but any interactions with when will not work.</span>
+                            </div>
+                        </td>
                         <td>
                             <div id="rect_menu" class="multitext">
                                 <input type="number" class="optionnumberbox" id="x_menu">
@@ -48,9 +60,26 @@
                     </tr>
                     <tr>
                         <td>
+                            <input type="checkbox" class="enabledcheckbox" id="blurworld_menu_enable">
+                        </td>
+                        <td>
+                            <div class="tooltip">blurworld
+                                <span class="tooltiptext">Blurs the screen behind menu.</span>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" min="0" max="7" class="optionnumberbox" id="blurworld_menu">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <input type="checkbox" class="enabledcheckbox" id="border_menu_enable">
                         </td>
-                        <td>border</td>
+                        <td>
+                            <div class="tooltip">border
+                                <span class="tooltiptext">Sets a border type.</span>
+                            </div>
+                        </td>
                         <td>
                             <select class="optionselectbox" id="border_menu">
                                 <option value="0">WINDOW_BORDER_NONE</option>
@@ -66,7 +95,12 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="bordersize_menu_enable">
                         </td>
-                        <td>bordersize</td>
+                        <td>
+                            <div class="tooltip">bordersize
+                                <span class="tooltiptext">Sets the border thickness. The border is drawn inside of the menu rect. The origin coordinates for nested items is shifted,
+                                meaning that "0, 0" for itemDefs changes accordingly to avoid the border.</span>
+                            </div>
+                        </td>
                         <td>
                             <input type="number" min="0" class="optionnumberbox" id="bordersize_menu">
                         </td>
@@ -75,13 +109,17 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="bordercolor_menu_enable">
                         </td>
-                        <td>bordercolor</td>
+                        <td>
+                            <div class="tooltip">bordercolor
+                                <span class="tooltiptext">Sets the border color.</span>
+                            </div>
+                        </td>
                         <td>
                             <div id="bordercolor_menu" class="multitext">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="r_menu">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="g_menu">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="b_menu">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="a_menu">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="r_menu">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="g_menu">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_menu">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_menu">
                             </div>
                         </td>
                     </tr>
@@ -89,7 +127,11 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="onOpen_menu_enable">
                         </td>
-                        <td>onOpen</td>
+                        <td>
+                            <div class="tooltip">onOpen
+                                <span class="tooltiptext">Runs the provided script when the menu opens.</span>
+                            </div>
+                        </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="onOpen_menu"></textarea>
                         </td>
@@ -98,7 +140,11 @@
                         <td>
                             <input type="checkbox" class="" id="onClose_menu_enable">
                         </td>
-                        <td>onClose</td>
+                        <td>
+                            <div class="tooltip">onClose
+                                <span class="tooltiptext">Runs the provided script when the menu closes.</span>
+                            </div>
+                        </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="onClose_menu"></textarea>
                         </td>
@@ -107,7 +153,11 @@
                         <td>
                             <input type="checkbox" class="" id="onESC_menu_enable">
                         </td>
-                        <td>onESC</td>
+                        <td>
+                            <div class="tooltip">onESC
+                                <span class="tooltiptext">Runs the provided script when the Escape key (ESC) is pressed. This action usually closes the menu (by opening another).</span>
+                            </div>
+                        </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="onESC_menu"></textarea>
                         </td>
@@ -126,7 +176,11 @@
                 <table id="itemdefoptiontable">
                     <tr>
                         <td><input type="checkbox" class="enabledcheckbox" id="name_item_enable"></td>
-                        <td>name</td>
+                        <td>
+                            <div class="tooltip">Name
+                                <span class="tooltiptext">Sets a name for the item. Manipulation of an item is done through its name.</span>
+                            </div>
+                        </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="name_item"></textarea>
                         </td>
@@ -135,7 +189,13 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="rect_item_enable">
                         </td>
-                        <td>rect</td>
+                        <td>
+                            <div class="tooltip">rect
+                                <span class="tooltiptext">Defines a rectangular area within a menu. The item's rect is positioned relative to the menu's rect; i.e. the menu's rect
+                                acts as a "mini-screen" for the coordinates of item rect. This shifting eases the relocating of menus; menus can be moved
+                                without having to recalculate the positions of its items.</span>
+                            </div>
+                        </td>
                         <td>
                             <div id="rect_item" class="multitext">
                                 <input type="number" class="optionnumberbox" id="x_item">
@@ -161,7 +221,11 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="style_item_enable">
                         </td>
-                        <td>style</td>
+                        <td>
+                            <div class="tooltip">style
+                                <span class="tooltiptext">Fill style of the rect.</span>
+                            </div>
+                        </td>
                         <td>
                             <select class="optionselectbox" id="style_item">
                                 <option value="0">WINDOW_STYLE_EMPTY</option>
@@ -174,13 +238,17 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="backcolor_item_enable">
                         </td>
-                        <td>backcolor</td>
+                        <td>
+                            <div class="tooltip">backcolor
+                                <span class="tooltiptext">Sets background color for the item when `style' is set to WINDOW_STYLE_FILLED.</span>
+                            </div>
+                        </td>
                         <td>
                             <div id="backcolor_item" class="multitext">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="r_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="g_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="b_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="a_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="r_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="g_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                             </div>
                         </td>
                     </tr>
@@ -188,13 +256,18 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="forecolor_item_enable">
                         </td>
-                        <td>forecolor</td>
+                        <td>
+                            <div class="tooltip">forecolor
+                                <span class="tooltiptext">Sets foreground color for the item. Most prominent use is setting text color, although it also influences the color of any
+                                alpha-valued images.</span>
+                            </div>
+                        </td>
                         <td>
                             <div id="forecolor_item" class="multitext">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="r_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="g_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="b_item">
-                                <input type="number" min="0" max="1" class="optionnumberbox" id="a_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="r_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="g_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
+                                <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                             </div>
                         </td>
                     </tr>
@@ -202,21 +275,33 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="visible_item_enable">
                         </td>
-                        <td>visible</td>
+                        <td>
+                            <div class="tooltip">visible
+                                <span class="tooltiptext">Sets the visibility of the item. "0" prevents it from being drawn, "1" (or any other value) causes it to be drawn.</span>
+                            </div>
+                        </td>
                         <td><input type="checkbox" class="optioncheckbox" id="visible_item"></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="exp_item_enable">
                         </td>
-                        <td>exp</td>
+                        <td>
+                            <div class="tooltip">exp
+                                <span class="tooltiptext">Expression. This can be used for displaying parts of the itemDef using a expression e.g. using a dvar to display text.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="exp_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="border_item_enable">
                         </td>
-                        <td>border</td>
+                        <td>
+                            <div class="tooltip">border
+                                <span class="tooltiptext">Sets a border style for the item.</span>
+                            </div>
+                        </td>
                         <td>
                             <select class="optionselectbox" id="border_item">
                                 <option value="0">WINDOW_BORDER_NONE</option>
@@ -232,20 +317,28 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="bordersize_item_enable">
                         </td>
-                        <td>bordersize</td>
+                        <td>
+                            <div class="tooltip">bordersize
+                                <span class="tooltiptext">Sets the thickness of the border. The border is drawn on the inside of the item rect.</span>
+                            </div>
+                        </td>
                         <td><input type="number" min="0" max="1" class="optionnumberbox" id="bordersize_item"></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="bordercolor_item_enable">
                         </td>
-                        <td>bordercolor</td>
+                        <td>
+                            <div class="tooltip">bordercolor
+                                <span class="tooltiptext">Sets border color.</span>
+                            </div>
+                        </td>
                         <td>
                         <div id="bordercolor_item" class="multitext">
-                            <input type="number" min="0" max="1" class="optionnumberbox" id="r_item">
-                            <input type="number" min="0" max="1" class="optionnumberbox" id="g_item">
-                            <input type="number" min="0" max="1" class="optionnumberbox" id="b_item">
-                            <input type="number" min="0" max="1" class="optionnumberbox" id="a_item">
+                            <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="r_item">
+                            <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="g_item">
+                            <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
+                            <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                         </div>
                          </td>
 
@@ -254,7 +347,11 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="type_item_enable">
                         </td>
-                        <td>type</td>
+                        <td>
+                            <div class="tooltip">type
+                                <span class="tooltiptext">Sets the item type. If not specified, the default is ITEM_TYPE_TEXT.</span>
+                            </div>
+                        </td>
                         <td><select class="optionselectbox" id="type_item">
                             <option value="0">ITEM_TYPE_TEXT</option>
                             <option value="1">ITEM_TYPE_BUTTON</option>
@@ -264,21 +361,33 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="text_item_enable">
                         </td>
-                        <td>text</td>
+                        <td>
+                            <div class="tooltip">text
+                                <span class="tooltiptext">Sets the item type. If not specified, the default is ITEM_TYPE_TEXT.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="text_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="textscale_item_enable">
                         </td>
-                        <td>textscale</td>
+                        <td>
+                            <div class="tooltip">textscale
+                                <span class="tooltiptext">Scale the text size. A scale of 1.0 is 48 pixels tall (textscale = height / 48). </span>
+                            </div>
+                        </td>
                         <td><input type="number" class="optionnumberbox" id="textscale_item" min="0"></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="textalign_item_enable">
                         </td>
-                        <td>textalign</td>
+                        <td>
+                            <div class="tooltip">textalign
+                                <span class="tooltiptext">Determines where the horizontal alignment point is applied to text.</span>
+                            </div>
+                        </td>
                         <td>
                             <select class="optionselectbox" id="textalign_item">
                                 <option value="0">ITEM_ALIGN_LEFT</option>
@@ -291,7 +400,11 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="textalignx_item_enable">
                         </td>
-                        <td>textalignx</td>
+                        <td>
+                            <div class="tooltip">textalignx
+                                <span class="tooltiptext">Horizontal text alignment in pixels (of 640 max) from left edge of rect to alignment point of text.</span>
+                            </div>
+                        </td>
                         <td>
                             <input type="number" class="optionnumberbox" id="textalignx_item">
                         </td>
@@ -300,14 +413,24 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="textaligny_item_enable">
                         </td>
-                        <td>textaligny</td>
+                        <td>
+                            <div class="tooltip">textaligny
+                                <span class="tooltiptext">Vertical text alignment in pixels (of 480 max) from top edge of rect to bottom of text.</span>
+                            </div>
+                        </td>
                         <td><input type="number" class="optionnumberbox" id="textaligny_item"></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="background_item_enable">
                         </td>
-                        <td>background</td>
+                        <td>
+                            <div class="tooltip">background
+                                <span class="tooltiptext">Provided string is taken as a shader name or image file to display as the item's background, confined within the item rect.
+                                Rect's `style' has to be set to WINDOW_STYLE_SHADER. The background image is scaled, ignoring aspect ratios, to fill the
+                                rect.</span>
+                            </div>
+                        </td>
                         <td>
                             <textarea row="1" class="optionstextbox" id="background_item"></textarea>
                         </td>
@@ -316,35 +439,57 @@
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="onFocus_item_enable">
                         </td>
-                        <td>onFocus</td>
+                        <td>
+                            <div class="tooltip">onFocus
+                                <span class="tooltiptext">The given script is run when the item gets focus.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="onFocus_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="leaveFocus_item_enable">
                         </td>
-                        <td>leaveFocus</td>
+                        <td>
+                            <div class="tooltip">leaveFocus
+                                <span class="tooltiptext">The provided script is run when the item loses focus.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="leaveFocus_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="mouseEnter_item_enable">
                         </td>
-                        <td>mouseEnter</td>
+                        <td>
+                            <div class="tooltip">mouseEnter
+                                <span class="tooltiptext">Runs the provided script when the mouse enter the item's rect.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="mouseEnter_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="mouseExit_item_enable">
                         </td>
-                        <td>mouseExit</td>
+                        <td>
+                            <div class="tooltip">mouseExit
+                                <span class="tooltiptext">Runs the provided script when the mouse leaves the item's rect.</span>
+                            </div>
+                        </td>
                         <td><textarea row="1" class="optionstextbox" id="mouseExit_item"></textarea></td>
                     </tr>
                     <tr>
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="decorate_item_enable">
                         </td>
-                        <td>decorate</td>
+                        <td>
+                            <div class="tooltip">decorate
+                                <span class="tooltiptext">Presence of this keyword declares whether this item is a decoration item or not. Non-decoration items would be hotspots,
+                                buttons, sliders, etc., items that cause actions to happen. Decoration items would be menu border graphics, logos, animation
+                                boxes, etc.</span>
+                            </div>
+                        </td>
                         <td>
                             <input type="checkbox" class="optioncheckbox" id="decorate_item">
                         </td>
@@ -358,9 +503,13 @@
         </div>
 
         <div class="main">
-            <!-- <canvas class="canvas" id="screencanvas"></canvas> -->
+            <canvas class="canvas" id="screencanvas"></canvas>
             <canvas class="canvas" id="canvas" ></canvas>
         </div>
+
+
+        <!-- hidden images used for canvas -->
+        <img id="screen_image_wide" width="720" height="420" style="display: none;" src="images/screen_image_wide.jpg">
 
 
     <script src="js/menuBuilder.js"></script>

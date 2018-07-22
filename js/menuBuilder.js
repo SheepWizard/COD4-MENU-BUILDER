@@ -75,7 +75,6 @@
         this.menuDefIndex;
 
         this.draw = () =>{
-            ctx.fillText("itemdef  " + this.prop.name, 10, 10);
             if(this.options.visible){
                 if(this.prop.visible){
 
@@ -94,6 +93,7 @@
                 width: 640,
                 height: 480,
             },
+            blurworld: 0,
             border: 1,
             bordersize: 5,
             bordercolor: {
@@ -110,6 +110,7 @@
         this.options = {
             name: true,
             rect: true,
+            blurworld: true,
             border: true,
             bordersize: true,
             bordercolor: true,
@@ -140,6 +141,9 @@
                // screen.width = screen.width * zoomAmount;
                 //screen.height = screen.height * zoomAmount;
             }
+            if(this.options.blurworld){
+                screenctx.filter = "blur("+ this.prop.blurworld*2 +"px)";
+            }
             if(this.options.border && this.options.bordercolor){
                 var bordersize = 1;
                 if(this.options.bordersize){
@@ -152,7 +156,7 @@
                         b: this.prop.bordercolor.b,
                         a: this.prop.bordercolor.a,
                     }
-                    drawBorder(this.prop.rect.x*zoomAmount, this.prop.rect.y*zoomAmount, this.prop.rect.width*zoomAmount, this.prop.rect.height*zoomAmount, this.prop.bordersize*zoomAmount, this.prop.border, colour);
+                    drawBorder(0, 0, this.prop.rect.width*zoomAmount, this.prop.rect.height*zoomAmount, this.prop.bordersize*zoomAmount, this.prop.border, colour);
                 }
             }
 
@@ -172,11 +176,20 @@
         if(menuDefs.length != 0){
             menuDefs[selectedMenuDef].draw();
         }  
+
+        //we redraw the image incase a blur has been applied
+        if (showScreenImage) {
+            screenctx.clearRect(0, 0, screen.width, screen.height);
+            screenctx.drawImage(document.getElementById(currentScreenImage), 0, 0);
+        }
+        else {
+            screenctx.clearRect(0, 0, screen.width, screen.height);
+        }
     }
 
     //draw border function
     drawBorder = (x,y, width, height, bsize, type, colour) =>{
-       
+        //full
         if(type == 1){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //top
@@ -196,6 +209,7 @@
             ctx.rect((x+width)-bsize, y, x+width, y+height);
             ctx.fill();
         }
+        //horizontal
         else if(type == 2){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //top
@@ -207,6 +221,7 @@
             ctx.rect(x, (y + height) - bsize, x + width, y + height);
             ctx.fill();
         }
+        //vertical
         else if(type == 3){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //left
@@ -218,6 +233,7 @@
             ctx.rect((x + width) - bsize, y, x + width, y + height);
             ctx.fill();
         }
+        //raised / sunked
         else if(type == 5 || type == 6){
             if(type == 5){
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
@@ -277,17 +293,34 @@
     document.getElementById("newitemdef").addEventListener("click", () =>{
         newItemDef();
     })
-
+    //create a new menuDef
     document.getElementById("newmenudef").addEventListener("click", () =>{
         newMenuDef();
     })
+    //zoom in
     document.getElementById("zoomin").addEventListener("click", () =>{
-        console.log(zoomAmount);
         zoomAmount += 0.1;
     })
+    //zoom out
     document.getElementById("zoomout").addEventListener("click", () => {
-        console.log(zoomAmount);
         zoomAmount -= 0.1;
+    })
+    //toggle screen image
+    document.getElementById("imagetoggle").addEventListener("click", () =>{
+        showScreenImage = !showScreenImage;
+    })
+    //toggle canvas outlines
+    document.getElementById("outlinetoggle").addEventListener("click", () =>{
+        if (toggleOutline){
+            screen.style.borderWidth = "0px";
+            canvas.style.borderWidth = "0px";
+        }
+        else{
+            screen.style.borderWidth = "2px";
+            canvas.style.borderWidth = "2px";
+        }
+        toggleOutline = !toggleOutline;
+        
     })
 
     //create a new menuDef
@@ -324,6 +357,9 @@
         for(var i = 0; i<menuDefs.length; i++){
             const tr = document.createElement("tr");
             const name = document.createElement("td");
+            if (i == selectedMenuDef){
+                name.className = "selected";
+            }
             name.appendChild(document.createTextNode(menuDefs[i].prop.name));
 
             const select = document.createElement("td");
@@ -335,9 +371,25 @@
                 const id = event.target.id.split("_");        
                 selectedMenuDef = id[1];
                 updateOptions();
+                updateMenuDefTable();//update this table to update the coloured text
                 updateItemDefTable();
             })
             select.appendChild(button1);
+
+            const cpy = document.createElement("td");
+            const button3 = document.createElement("button");
+            button3.type = "button";
+            button3.id = "menudefcopy_" + i;
+            button3.appendChild(document.createTextNode("Copy"));
+            button3.addEventListener("click", (event) =>{
+                //menuDefs[selectedMenuDef]
+                const copy = cloneDef(menuDefs[selectedMenuDef], "menuDef");
+                selectedMenuDef = menuDefs.length;
+                menuDefs.push(copy);
+                updateOptions();
+                updateMenuDefTable();
+            })
+            cpy.appendChild(button3);
 
             const del = document.createElement("td");
             const button2 = document.createElement("button");
@@ -360,9 +412,54 @@
 
             tr.appendChild(name);
             tr.appendChild(select);
+            tr.appendChild(cpy);
             tr.appendChild(del);
             table.appendChild(tr);
         }
+    }
+
+    cloneDef = (def, type) =>{
+        var clone;
+        if(type == "menuDef"){
+            clone = new MenuDef("menu_" + menuDefs.length);
+            for (op in def.prop) {
+                if (op != "name") {
+                    if (typeof clone.prop[op] != "object") {
+                        
+                        clone.prop[op] = def.prop[op];
+                    }
+                    else {
+                        for (op2 in def.prop[op]) {
+                            clone.prop[op][op2] = def.prop[op][op2];
+                        }
+                    }
+                }
+                clone.options[op] = def.options[op];
+            }
+            for (var i = 0; i < def.itemDefList.length; i++){
+                clone.itemDefList.push(cloneItem(def.itemDefList[i]));
+                clone.selectedItemDef = clone.itemDefList.length - 1;
+            }  
+        }
+        else{
+            clone = cloneItem(def);
+        }
+        function cloneItem(def){
+            var item = new ItemDef(def.prop.name);
+            for(op in def.prop){
+                if (typeof item.prop[op] != "object") {
+                    item.prop[op] = def.prop[op];
+                }   
+                else{
+                    for(op2 in def.prop[op]){
+                        item.prop[op][op2] = def.prop[op][op2];
+                    }
+                }
+                item.options[op] = def.options[op];
+            }
+            return item;
+        }
+        return clone;
     }
 
     updateItemDefTable = () =>{
@@ -373,6 +470,9 @@
                 const def = menuDefs[selectedMenuDef].itemDefList[i];
                 const tr = document.createElement("tr");
                 const name = document.createElement("td");
+                if (i == menuDefs[selectedMenuDef].selectedItemDef){
+                    name.className = "selected";
+                }
                 name.appendChild(document.createTextNode(def.prop.name));
 
                 const select = document.createElement("td");
@@ -384,8 +484,23 @@
                     const id = event.target.id.split("_");
                     menuDefs[selectedMenuDef].selectedItemDef = id[1];
                     updateOptions();
+                    updateItemDefTable();
                 })
                 select.appendChild(button1);
+
+                const cpy = document.createElement("td");
+                const button3 = document.createElement("button");
+                button3.type = "button";
+                button3.id = "menudefcopy_" + i;
+                button3.appendChild(document.createTextNode("Copy"));
+                button3.addEventListener("click", (event) => {
+                    const copy = cloneDef(menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef], "itemDef");
+                    menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
+                    menuDefs[selectedMenuDef].itemDefList.push(copy);
+                    updateOptions();
+                    updateItemDefTable();
+                })
+                cpy.appendChild(button3);
 
                 const del = document.createElement("td");
                 const button2 = document.createElement("button");
@@ -408,6 +523,7 @@
 
                 tr.appendChild(name);
                 tr.appendChild(select);
+                tr.appendChild(cpy);
                 tr.appendChild(del);
                 table.appendChild(tr);
             }
@@ -656,6 +772,9 @@
         x: 720,
         y: 480
     }
+    var currentScreenImage = "screen_image_wide";
+    var showScreenImage = true;
+    var toggleOutline = true;
     var zoomAmount = 1;
     const menuDefs = [];
     var selectedMenuDef;
@@ -663,14 +782,31 @@
     canvas.width = 0;
     canvas.height = 0;
     const ctx = canvas.getContext("2d");
-
+    const screen = document.getElementById("screencanvas");
+    screen.width = 720;
+    screen.height = 480;
+    const screenctx = screen.getContext("2d");
 
 
     requestAnimationFrame(loop);
 
-    //fix blurryness
-    //add copy menudef / itemdef option
-    //border is being exported as a string
+    //   BUGS   //
+    /*
+        fix blurryness 
+        border is being exported as a string
+    */
+
+    //   FEATURES TO ADD   //
+    /*
+        different resolution background images
+        upload images
+        save progress
+        console showing onopen / onclose / onesc text
+        import menu files
+        import header files
+        support definitions
+
+    */
 
     (function () {
         var textFile;
@@ -760,9 +896,7 @@
                 }
                 text += "\t}\n"
             }
-
             text += "}\n";
-
             return text;
         }
     })(); 

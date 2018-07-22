@@ -26,6 +26,37 @@
     width: 100%;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    top: -5px;
+    left: 105%; 
+    width: 220px;
+    background-color: rgb(0, 0, 0);
+    color: #fff;
+    text-align: center;
+    border-radius: 0px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/*used for selected MenuDef / ItemDef text */
+.selected{
+    color: #fff;
+}
+
 
 
 /* Style page content */
