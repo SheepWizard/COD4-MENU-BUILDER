@@ -4,10 +4,14 @@
     /*
         fix blurryness 
         border is being exported as a string
+        style number exported as string
+        align left center doesnt quite match ingame
     */
 
     //   FEATURES TO ADD   //
     /*
+        add action to itemdef
+        add textstyle option
         move menudef x / y
         upload images
         save progress
@@ -18,16 +22,19 @@
         default shader list
     */
     //  VARIABLES   //  
-    var currentScreenImage = "screen_image_wide";
+    var currentScreenImage = "screen_image_1";
     var showScreenImage = true;
     var toggleOutline = true;
     var zoomAmount = 1;
     var selectedMenuDef;
     const menuDefs = [];
     const screenSize = {
-        x: 720,
+        x: 640,
         y: 480
     }
+    //720x480
+    //640*480
+    //853x480
     const menuCanvas = document.getElementById("canvas");
     const ctx = menuCanvas.getContext("2d");
     const screen = document.getElementById("screencanvas");
@@ -47,8 +54,8 @@
             rect: {
                 x: 0,
                 y: 0,
-                width: 10,
-                height: 10,
+                width: 100,
+                height: 100,
                 alignx: 1,
                 aligny: 1,
             },
@@ -87,7 +94,7 @@
             leaveFocus: "",
             mouseEnter: "",
             mouseExit: "",
-            decorate: 1,
+            decoration: 1,
         }
         this.options = {
             name: true,
@@ -96,7 +103,7 @@
             backcolor: true,
             forecolor: true,
             visible: true,
-            exp: true,
+            exp: false,
             border: true,
             bordersize: true,
             bordercolor: true,
@@ -111,18 +118,66 @@
             leaveFocus: true,
             mouseEnter: true,
             mouseExit: true,
-            decorate: true,
+            decoration: true,
         }
 
         this.menuDefIndex;
 
         this.draw = () =>{
-            if(this.options.visible){
-                if(this.prop.visible){
 
+            if(this.options.exp){
+                if(this.prop.exp == ""){
+                    alert("Menu will not compile with empty exp value!");
+                    this.prop.exp = "text(dvarString(\"com_maxfps\"))";
+                    updateOptions();
+                    return;
                 }
-                else{return;}
             }
+
+            if(this.options.visible){
+                if(!this.prop.visible){
+                    return;
+                }
+            }
+            else{return;}
+            const menu = menuDefs[selectedMenuDef];
+            if (this.options.rect) {
+                var xoffset = 0;
+                var yoffset = 0;
+
+                //HORIZONTAL_ALIGN_LEFT
+                if(this.prop.rect.alignx == 1){
+                    xoffset = 0;
+                }
+                //HORIZONTAL_ALIGN_CENTER
+                if(this.prop.rect.alignx == 2){
+                    xoffset = menu.prop.rect.width/2;
+                }
+
+                if(this.prop.rect.aligny == 1){
+                    yoffset = 0;
+                }
+                if(this.options.style){
+
+                    //STILL DRAW BORDER EVEN IF THERE IS NO BACKCOLOUR
+                    if(this.prop.style == 1 && this.options.backcolor){
+                        ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + this.prop.backcolor.a + ")";
+                        if (menu.options.border != 0){
+                           
+                            const x = parseInt(this.prop.rect.x) + menu.prop.bordersize + xoffset;
+                            const y = parseInt(this.prop.rect.y) + menu.prop.bordersize + yoffset;
+                            ctx.fillRect(x * zoomAmount, y + zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                        }   
+                        else{
+                            const x = parseInt(this.prop.rect.x) + xoffset;
+                            const y = parseInt(this.prop.rect.y) + yoffset;
+                            ctx.fillRect(x * zoomAmount, y*zoomAmount , this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                        }
+                        
+                    }
+                }
+            }
+            else { return; }
         }
     }
 
@@ -137,11 +192,11 @@
             },
             blurworld: 0,
             border: 1,
-            bordersize: 5,
+            bordersize: 10,
             bordercolor: {
-                r: 0.5,
-                g: 0.5,
-                b: 0.5,
+                r: 1,
+                g: 0,
+                b: 0,
                 a: 1,
             },
             onOpen: "",
@@ -165,7 +220,7 @@
         this.selectedItemDef;
 
         this.draw = () =>{
-            const xoffset = screenSize.x == 720 ? 40*zoomAmount : 0;
+            const xoffset = ((screenSize.x-640)/2)*zoomAmount;
             if(this.options.visible){
                 if(!this.prop.visible){
                     menuCanvas.style.display = "none";
@@ -188,7 +243,7 @@
 
             }
             if(this.options.blurworld){
-                screenctx.filter = "blur("+ this.prop.blurworld*2 +"px)";
+                screenctx.filter = "blur("+ this.prop.blurworld*0.5 +"px)";
             }
             if(this.options.border && this.options.bordercolor){
                 var bordersize = 1;
@@ -202,7 +257,8 @@
                         b: this.prop.bordercolor.b,
                         a: this.prop.bordercolor.a,
                     }
-                    drawBorder(0 + xoffset, 0, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize*zoomAmount, this.prop.border, colour);
+
+                    drawBorder(/*Why is this being treated as a string?*/parseInt(this.prop.rect.x) + xoffset, parseInt(this.prop.rect.y), this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize*zoomAmount, this.prop.border, colour);
                 }
             }
 
@@ -249,7 +305,8 @@
 
         })
         document.getElementById("screenratio").addEventListener("click", () => {
-            screenSize.x = screenSize.x == 640 ? 720 : 640;
+            screenSize.x = screenSize.x == 640 ? 720 : screenSize.x == 720 ? 853 : 640;
+            currentScreenImage = currentScreenImage == "screen_image_1" ? "screen_image_2" : currentScreenImage == "screen_image_2" ? "screen_image_3" : "screen_image_1";
         })
     }
 
@@ -861,7 +918,7 @@
                     text += "\t\titemdef\n\t\t{\n";
                     for (var option in menuDefs[i].itemDefList[z].prop) {
                         if (menuDefs[i].itemDefList[z].options[option] == true){
-                            if(option == "decorate"){
+                            if(option == "decoration"){
                                 text += "\t\t\t" + option + "\n";
                             }
                             else if(option == "exp"){

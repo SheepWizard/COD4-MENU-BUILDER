@@ -69,7 +69,7 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" min="0" max="7" class="optionnumberbox" id="blurworld_menu">
+                            <input type="number" min="0" max="30" class="optionnumberbox" id="blurworld_menu">
                         </td>
                     </tr>
                     <tr>
@@ -278,7 +278,7 @@
                         </td>
                         <td>
                             <div class="tooltip">visible
-                                <span class="tooltiptext">Sets the visibility of the item. "0" prevents it from being drawn, "1" (or any other value) causes it to be drawn.</span>
+                                <span class="tooltiptext">Sets the visibility of the item. "0" prevents it from being drawn, "1" (or any other value) causes it to be drawn. Can also use a expression e.g. when(dvarString("test") == "text") (not supported on Menu Builder)</span>
                             </div>
                         </td>
                         <td><input type="checkbox" class="optioncheckbox" id="visible_item"></td>
@@ -289,7 +289,7 @@
                         </td>
                         <td>
                             <div class="tooltip">exp
-                                <span class="tooltiptext">Expression. This can be used for displaying parts of the itemDef using a expression e.g. using a dvar to display text.</span>
+                                <span class="tooltiptext">Expression. This can be used for displaying parts of the itemDef using a expression. Expressions include: text(dvarString("")) rect X(dvarInt()) rect Y(dvarFloat() rect W(dvarInt()) rect H(dvarFloat)) material(dvarString("))</span>
                             </div>
                         </td>
                         <td><textarea row="1" class="optionstextbox" id="exp_item"></textarea></td>
@@ -482,17 +482,17 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" class="enabledcheckbox" id="decorate_item_enable">
+                            <input type="checkbox" class="enabledcheckbox" id="decoration_item_enable">
                         </td>
                         <td>
-                            <div class="tooltip">decorate
+                            <div class="tooltip">decoration
                                 <span class="tooltiptext">Presence of this keyword declares whether this item is a decoration item or not. Non-decoration items would be hotspots,
                                 buttons, sliders, etc., items that cause actions to happen. Decoration items would be menu border graphics, logos, animation
-                                boxes, etc.</span>
+                                boxes, etc. Basically decoration removes all animations from itemDef.</span>
                             </div>
                         </td>
                         <td>
-                            <input type="checkbox" class="optioncheckbox" id="decorate_item">
+                            <input type="checkbox" class="optioncheckbox" id="decoration_item">
                         </td>
                     </tr>
 
@@ -510,7 +510,9 @@
 
 
         <!-- hidden images used for canvas -->
-        <img id="screen_image_wide" style="display: none;" src="images/screen_image_wide.jpg">
+        <img id="screen_image_1" style="display: none;" src="images/screen_image_1.jpg">
+        <img id="screen_image_2" style="display: none;" src="images/screen_image_2.jpg">
+        <img id="screen_image_3" style="display: none;" src="images/screen_image_3.jpg">
 
 
     <script src="js/menuBuilder.js"></script>
