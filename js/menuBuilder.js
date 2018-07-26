@@ -3,11 +3,10 @@
      //   BUGS   //
     /*
         fix blurryness 
-        border is being exported as a string
-        reading numbers from text boxes turned them into strings
         align x center doesnt quite match ingame
-        subleft needs to move with menudef
         fullscreen alignment needs to stretch itemdef
+        itemdef does not render in correct place when using zoom (only seems to happen when there is menudef border)
+
     */
 
     //   FEATURES TO ADD   //
@@ -148,9 +147,8 @@
                 var yoffset = 0;
 
                 //HORIZONTAL_ALIGN_SUBLEFT
-                //not finished
                 if (this.prop.rect.alignx == 0) {
-                    xoffset = ((screenSize.x - 640 + parseInt(menu.prop.rect.x)) / 2) * zoomAmount ;
+                    xoffset = ((screenSize.x - 640) / 2) + menu.prop.rect.x ;
                 }
                 //HORIZONTAL_ALIGN_LEFT
                 if(this.prop.rect.alignx == 1){
@@ -168,6 +166,10 @@
                 //not finished
                 if (this.prop.rect.alignx == 4) {
                     xoffset = screen.width;
+                }
+                //VERTIAL_ALIGN_SUBTOP
+                if(this.prop.rect.aligny == 0){
+                    yoffset = ((screenSize.y - 480)/2) + menu.prop.rect.y;  
                 }
                 //VERTICAL_ALIGN_TOP
                 if(this.prop.rect.aligny == 1){
@@ -193,13 +195,13 @@
                         ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + this.prop.backcolor.a + ")";
                         if (menu.options.border != 0){
                            
-                            const x = parseInt(this.prop.rect.x) + menu.prop.bordersize + xoffset;
-                            const y = parseInt(this.prop.rect.y) + menu.prop.bordersize + yoffset;
+                            const x = this.prop.rect.x + menu.prop.bordersize + xoffset;
+                            const y = this.prop.rect.y + menu.prop.bordersize + yoffset;
                             ctx.fillRect(x * zoomAmount, y + zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                         }   
                         else{
-                            const x = parseInt(this.prop.rect.x) + xoffset;
-                            const y = parseInt(this.prop.rect.y) + yoffset;
+                            const x = this.prop.rect.x + xoffset;
+                            const y = this.prop.rect.y + yoffset;
                             ctx.fillRect(x * zoomAmount, y*zoomAmount , this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                         }
                         
@@ -287,7 +289,7 @@
                         a: this.prop.bordercolor.a,
                     }
 
-                    drawBorder(/*Why is this being treated as a string?*/parseInt(this.prop.rect.x) + xoffset, parseInt(this.prop.rect.y), this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize*zoomAmount, this.prop.border, colour);
+                    drawBorder(this.prop.rect.x + xoffset, this.prop.rect.y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize*zoomAmount, this.prop.border, colour);
                 }
             }
 
@@ -366,25 +368,25 @@
         //full
         if(type == 1){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
-            drawBottom();
-            drawTop();
-            drawLeft();
-            drawRight();
+            drawBottom(true);
+            drawTop(true);
+            drawLeft(true);
+            drawRight(true);
 
         }
         //horizontal
         else if(type == 2){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //top
-            drawTop();
-            drawBottom();
+            drawTop(false);
+            drawBottom(false);
         }
         //vertical
         else if(type == 3){
             ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             //left
-            drawLeft();
-            drawRight();
+            drawLeft(false);
+            drawRight(false);
         }
         //raised / sunked
         else if(type == 5 || type == 6){
@@ -394,47 +396,72 @@
             else{
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
             }
-            drawTop();
-            drawLeft();
+            drawTop(true);
+            drawLeft(true);
             if (type == 6) {
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) + "," + convertColour(colour.g) + "," + convertColour(colour.b) + "," + colour.a + ")";
             }
             else {
                 ctx.fillStyle = "rgba(" + convertColour(colour.r) / 3 + "," + convertColour(colour.g) / 3 + "," + convertColour(colour.b) / 3 + "," + colour.a + ")";
             }
-            drawBottom();
-            drawRight();
+            drawBottom(true);
+            drawRight(true);
         }
-        function drawLeft(){
+        function drawLeft(angle){
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x, y + height);
-            ctx.lineTo(x + bsize, (y + height) - bsize);
-            ctx.lineTo(x + bsize, y + bsize);
+            //angle corners if border is aligned with another border
+            if(angle){
+                ctx.lineTo(x + bsize, (y + height) - bsize);
+                ctx.lineTo(x + bsize, y + bsize);
+            }
+            else{
+                ctx.lineTo(x+bsize, y+height);
+                ctx.lineTo(x+bsize, y);
+            } 
             ctx.fill();
         }
-        function drawTop(){
+        function drawTop(angle){
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x + width, y);
-            ctx.lineTo((x + width) - bsize, y + bsize);
-            ctx.lineTo(x + bsize, y + bsize);
+            if(angle){
+                ctx.lineTo((x + width) - bsize, y + bsize);
+                ctx.lineTo(x + bsize, y + bsize);
+            }
+            else{
+                ctx.lineTo(x+width, y+bsize);
+                ctx.lineTo(x, y+bsize);
+            }  
             ctx.fill();
         }
-        function drawRight(){
+        function drawRight(angle){
             ctx.beginPath();
             ctx.moveTo(x + width, y);
             ctx.lineTo(x + width, y + height);
-            ctx.lineTo((x + width) - bsize, (y + height) - bsize);
-            ctx.lineTo((x + width) - bsize, y + bsize);
+            if(angle){
+                ctx.lineTo((x + width) - bsize, (y + height) - bsize);
+                ctx.lineTo((x + width) - bsize, y + bsize);
+            }
+            else{
+                ctx.lineTo((x+width) - bsize, y+height);
+                ctx.lineTo((x+width) - bsize, y);
+            }
             ctx.fill();
         }
-        function drawBottom() {
+        function drawBottom(angle) {
             ctx.beginPath();
             ctx.moveTo(x, y + height);
             ctx.lineTo(x + width, y + height);
-            ctx.lineTo((x + width) - bsize, (y + height) - bsize);
-            ctx.lineTo(x + bsize, (y + height) - bsize);
+            if(angle){
+                ctx.lineTo((x + width) - bsize, (y + height) - bsize);
+                ctx.lineTo(x + bsize, (y + height) - bsize);
+            }
+            else{
+                ctx.lineTo(x+width, (y+height) - bsize);
+                ctx.lineTo(x, (y + height) - bsize);
+            }
             ctx.fill();
         }
         
@@ -448,7 +475,7 @@
     newMenuDef = () =>{
 
         //
-        if (menuDefs[selectedMenuDef].length == 640) {
+        if (menuDefs.length == 640) {
             alert("You can not have not then 640 MenuDef's");
             return;
         }
@@ -752,6 +779,7 @@
                         }else{
                             def.prop[tkn[0]] = event.target.checked == true ? 1 : 0;
                         }
+                        cookieSave();
                     }
                 })
             }
@@ -773,10 +801,21 @@
                     }
                     if (def != null) {
                         if (id2 != null) {
-                            def.prop[id2][tkn[0]] = event.target.value;
+                            if (!isNaN(event.target.value)){
+                                def.prop[id2][tkn[0]] = parseFloat(event.target.value);
+                            }
+                            else{
+                                def.prop[id2][tkn[0]] = event.target.value;
+                            }  
                         } else {
-                            def.prop[tkn[0]] = event.target.value;
+                            if(!isNaN(event.target.value)){
+                                def.prop[tkn[0]] = parseFloat(event.target.value);
+                            }
+                            else{
+                                def.prop[tkn[0]] = event.target.value;
+                            }  
                         }
+                        cookieSave();
                     }
                     //update menuDef table
                     if(event.target.id == "name_menu"){
@@ -891,10 +930,23 @@
                 element.value = val;
             }
         }
+        cookieSave();
     }
 
+    //cookie saving
+    (function (){
+        cookieSave = () =>{
+            var cookie = "";
+            for(var i = 0; i< menuDefs.length; i++){
+                var menu = ""
 
-
+                cookie += menu+";";
+            }
+            document.cookie = cookie;
+        }
+    })();
+    
+    //menufile expoer
     (function () {
         var textFile;
         document.getElementById("export").addEventListener("click", () => {

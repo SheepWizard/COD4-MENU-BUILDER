@@ -26,10 +26,15 @@
     width: 100%;
 }
 
+.optiontext{
+    color: #fff;
+}
+
 .tooltip {
     position: relative;
     display: inline-block;
 }
+
 .tooltip .tooltiptext {
     visibility: hidden;
     top: -5px;
