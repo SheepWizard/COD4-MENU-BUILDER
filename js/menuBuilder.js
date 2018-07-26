@@ -4,15 +4,14 @@
     /*
         fix blurryness 
         border is being exported as a string
-        style number exported as string
-        align left center doesnt quite match ingame
+        reading numbers from text boxes turned them into strings
+        align x center doesnt quite match ingame
+        subleft needs to move with menudef
+        fullscreen alignment needs to stretch itemdef
     */
 
     //   FEATURES TO ADD   //
     /*
-        add action to itemdef
-        add textstyle option
-        move menudef x / y
         upload images
         save progress
         console showing onopen / onclose / onesc text
@@ -56,8 +55,8 @@
                 y: 0,
                 width: 100,
                 height: 100,
-                alignx: 1,
-                aligny: 1,
+                alignx: 0,
+                aligny: 0,
             },
             style: 0,
             backcolor:  {
@@ -90,6 +89,7 @@
             textalignx: 0,
             textaligny: 0,
             background: "",
+            action: "",
             onFocus: "",
             leaveFocus: "",
             mouseEnter: "",
@@ -110,10 +110,12 @@
             type: true,
             text: true,
             textscale: true,
+            textstyle: true,
             textalign: true,
             textalignx: true,
             textaligny: true,
             background: true,
+            action: true,
             onFocus: true,
             leaveFocus: true,
             mouseEnter: true,
@@ -145,6 +147,11 @@
                 var xoffset = 0;
                 var yoffset = 0;
 
+                //HORIZONTAL_ALIGN_SUBLEFT
+                //not finished
+                if (this.prop.rect.alignx == 0) {
+                    xoffset = ((screenSize.x - 640 + parseInt(menu.prop.rect.x)) / 2) * zoomAmount ;
+                }
                 //HORIZONTAL_ALIGN_LEFT
                 if(this.prop.rect.alignx == 1){
                     xoffset = 0;
@@ -153,9 +160,31 @@
                 if(this.prop.rect.alignx == 2){
                     xoffset = menu.prop.rect.width/2;
                 }
-
+                //HORIZONTAL_ALIGN_RIGHT
+                if (this.prop.rect.alignx == 3) {
+                    xoffset = screen.width;
+                }
+                //HORIZONTAL_ALIGN_FULLSCREEN
+                //not finished
+                if (this.prop.rect.alignx == 4) {
+                    xoffset = screen.width;
+                }
+                //VERTICAL_ALIGN_TOP
                 if(this.prop.rect.aligny == 1){
                     yoffset = 0;
+                }
+                //VERTICAL_ALIGN_CENTER
+                if(this.prop.rect.aligny == 2){
+                    yoffset = menu.prop.rect.height / 2;
+                }
+                //VERTICAL_ALIGN_BOTTOM
+                if(this.prop.rect.aligny == 3){
+                    yoffset = screen.height;
+                }
+                //VERTICAL_ALIGN_FULLSCREEN
+                //not finished
+                if (this.prop.rect.aligny == 4) {
+                    yoffset = screen.width;
                 }
                 if(this.options.style){
 
@@ -418,7 +447,11 @@
     //create a new menuDef
     newMenuDef = () =>{
 
-        //CHECK IF THERE IS A MENUDEF LIMIT
+        //
+        if (menuDefs[selectedMenuDef].length == 640) {
+            alert("You can not have not then 640 MenuDef's");
+            return;
+        }
 
         selectedMenuDef = menuDefs.length;
         menuDefs.push(new MenuDef("menu_"+menuDefs.length));
