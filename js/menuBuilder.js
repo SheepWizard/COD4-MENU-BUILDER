@@ -4,15 +4,16 @@
     /*
         align x center doesnt quite match ingame
         fullscreen alignment needs to stretch itemdef
-        think zoom is fixed
         change how image colour overlay is applied
         load image from itemdef background name
+        moveup doesnt work
+        make snapgrid smoother
     */
 
     //   FEATURES TO ADD   //
     /*
         snap detection on moving rect
-        default sahder
+        default shader
         set colour with rgba picker
         upload images
         save progress
@@ -30,6 +31,7 @@
     var selectedMenuDef;
     var backgroundImage = new Image();
     var mouseClickFlag = false;
+    var gridSnap = 1;
     const menuDefs = [];
     const screenSize = {
         x: 640,
@@ -434,6 +436,9 @@
             }
             reader.readAsDataURL(e.target.files[0]); 
         })
+        document.getElementById("gridsnap").addEventListener("input", (e) =>{
+            gridSnap = event.target.value;
+        })
         menuCanvas.addEventListener("mousedown", (e) => {
             const cvn = canvas.getBoundingClientRect();
             oldMousePos.x = event.clientX -cvn.left;
@@ -454,6 +459,7 @@
             }
             
         })
+
     }
 
 
@@ -483,9 +489,13 @@
         if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
         const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
 
-        rect.x += mousepos.x - oldMousePos.x;
-        rect.y += mousepos.y - oldMousePos.y;
-
+        //snapping
+        const xval = rect.x + (mousepos.x - oldMousePos.x);
+        const yval = rect.y + (mousepos.y - oldMousePos.y);
+        //check if pos needs to be rounded up or down
+        rect.x = (xval%gridSnap) > gridSnap /2 ? Math.ceil(xval/gridSnap) * gridSnap : Math.floor(xval/gridSnap) * gridSnap;
+        rect.y = (yval%gridSnap) > gridSnap /2 ? Math.ceil(yval/gridSnap) * gridSnap : Math.floor(yval/gridSnap) * gridSnap;
+    
         const cvn = canvas.getBoundingClientRect();
         oldMousePos.x = event.clientX - cvn.left;
         oldMousePos.y = event.clientY - cvn.top;
@@ -813,7 +823,6 @@
                 button4.addEventListener("click", (event) =>{
                     const id = event.target.id.split("_")[1];
                     if(id == 0)return;
-                    console.log(id);
                     const temp = menuDefs[selectedMenuDef].itemDefList[id-1];
                     menuDefs[selectedMenuDef].itemDefList[id-1] = menuDefs[selectedMenuDef].itemDefList[id]
                     menuDefs[selectedMenuDef].itemDefList[id] = temp;
@@ -821,11 +830,27 @@
                 })
                 down.appendChild(button4);
 
+                const up = document.createElement("td");
+                const button5 = document.createElement("button");
+                button5.type = "button";
+                button5.id = "itemdefup_" + i;
+                button5.appendChild(document.createTextNode("Move up"));
+                button5.addEventListener("click", (event) =>{
+                    const id = event.target.id.split("_")[1];
+                    if (id == menuDefs[selectedMenuDef].itemDefList.length-1) return;
+                    const temp = menuDefs[selectedMenuDef].itemDefList[id+1];
+                    menuDefs[selectedMenuDef].itemDefList[id+1] = menuDefs[selectedMenuDef].itemDefList[id]
+                    menuDefs[selectedMenuDef].itemDefList[id] = temp;
+                    updateItemDefTable();
+                })
+                up.appendChild(button5);
+
                 tr.appendChild(name);
                 tr.appendChild(select);
                 tr.appendChild(cpy);
                 tr.appendChild(del);
                 tr.appendChild(down);
+                tr.appendChild(up);
                 table.appendChild(tr);
             }
         }
