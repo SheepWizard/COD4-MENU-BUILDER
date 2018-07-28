@@ -2,15 +2,18 @@
 
      //   BUGS   //
     /*
-        fix blurryness 
         align x center doesnt quite match ingame
         fullscreen alignment needs to stretch itemdef
-        itemdef does not render in correct place when using zoom (only seems to happen when there is menudef border)
-
+        think zoom is fixed
+        change how image colour overlay is applied
+        load image from itemdef background name
     */
 
     //   FEATURES TO ADD   //
     /*
+        snap detection on moving rect
+        default sahder
+        set colour with rgba picker
         upload images
         save progress
         console showing onopen / onclose / onesc text
@@ -25,6 +28,8 @@
     var toggleOutline = true;
     var zoomAmount = 1;
     var selectedMenuDef;
+    var backgroundImage = new Image();
+    var mouseClickFlag = false;
     const menuDefs = [];
     const screenSize = {
         x: 640,
@@ -33,6 +38,10 @@
     //720x480
     //640*480
     //853x480
+    const oldMousePos = {
+        x: 0,
+        y: 0
+    }
     const menuCanvas = document.getElementById("canvas");
     const ctx = menuCanvas.getContext("2d");
     const screen = document.getElementById("screencanvas");
@@ -57,7 +66,7 @@
                 alignx: 0,
                 aligny: 0,
             },
-            style: 0,
+            style: 1,
             backcolor:  {
                 r: 0.25,
                 g: 0.25,
@@ -113,7 +122,7 @@
             textalign: true,
             textalignx: true,
             textaligny: true,
-            background: true,
+            background: false,
             action: true,
             onFocus: true,
             leaveFocus: true,
@@ -145,6 +154,8 @@
             if (this.options.rect) {
                 var xoffset = 0;
                 var yoffset = 0;
+                var x = 0;
+                var y = 0;
 
                 //HORIZONTAL_ALIGN_SUBLEFT
                 if (this.prop.rect.alignx == 0) {
@@ -165,7 +176,9 @@
                 //HORIZONTAL_ALIGN_FULLSCREEN
                 //not finished
                 if (this.prop.rect.alignx == 4) {
-                    xoffset = screen.width;
+                    alert("Not currently supported");
+                    this.prop.rect.alignx = 1;
+                    updateOptions();
                 }
                 //VERTIAL_ALIGN_SUBTOP
                 if(this.prop.rect.aligny == 0){
@@ -186,29 +199,100 @@
                 //VERTICAL_ALIGN_FULLSCREEN
                 //not finished
                 if (this.prop.rect.aligny == 4) {
-                    yoffset = screen.width;
+                    alert("Not currently supported");
+                    this.prop.rect.aligny = 1;
+                    updateOptions();
                 }
-                if(this.options.style){
 
-                    //STILL DRAW BORDER EVEN IF THERE IS NO BACKCOLOUR
-                    if(this.prop.style == 1 && this.options.backcolor){
-                        ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + this.prop.backcolor.a + ")";
-                        if (menu.options.border != 0){
-                           
-                            const x = this.prop.rect.x + menu.prop.bordersize + xoffset;
-                            const y = this.prop.rect.y + menu.prop.bordersize + yoffset;
-                            ctx.fillRect(x * zoomAmount, y + zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
-                        }   
+                if (menu.options.border != 0) {
+                    x = this.prop.rect.x + menu.prop.bordersize + xoffset;
+                    y = this.prop.rect.y + menu.prop.bordersize + yoffset;
+                }
+                else {
+                    x = this.prop.rect.x + xoffset;
+                    y = this.prop.rect.y + yoffset;
+                }
+
+                if(this.options.style){
+                    if(this.prop.style == 1 || this.prop.style == 3){
+                        if(this.options.background){
+                            if(this.prop.style == 1){
+                                //draw image wth backcolour overlay
+                                if(this.options.backcolor){
+                                    if (this.options.border && this.options.bordercolor) {
+                                        ctx.drawImage(backgroundImage, (x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                        ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
+                                        ctx.fillRect((x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                    }
+                                    else{
+                                        ctx.drawImage(backgroundImage, x * zoomAmount, y * zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                        ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
+                                        ctx.fillRect(x * zoomAmount, y  * zoomAmount, this.prop.rect.width  * zoomAmount, this.prop.rect.height * zoomAmount);
+                                    }
+                                }
+                                else{
+                                    ctx.fillStyle = "rgba(0,0,0,1)";
+                                    if(this.options.border && this.options.bordercolor){
+                                        ctx.fillRect((x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                    }
+                                    else{
+                                        ctx.fillRect(x * zoomAmount, y * zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                    }
+                                }
+                            }
+                            else if(this.prop.style == 3){
+                                //draw image with forcolour overlay
+                                if(this.options.border && this.options.bordercolor){
+                                    ctx.drawImage(backgroundImage, (x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                    if (this.options.forecolor) {
+                                        ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + 0.5+ ")";
+                                        ctx.fillRect((x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                    } 
+                                }
+                                else{
+                                    ctx.drawImage(backgroundImage, x*zoomAmount, y*zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                    if (this.options.forecolor) {
+                                        ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + 0.5 + ")";
+                                        ctx.fillRect(x * zoomAmount, y * zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                    }
+                                }
+                            }
+                        }
                         else{
-                            const x = this.prop.rect.x + xoffset;
-                            const y = this.prop.rect.y + yoffset;
-                            ctx.fillRect(x * zoomAmount, y*zoomAmount , this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                            if(this.options.backcolor && this.prop.style == 1){
+                                ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + this.prop.backcolor.a + ")";
+                                if (this.options.border && this.options.bordercolor) {
+                                    ctx.fillRect((x + this.prop.bordersize) * zoomAmount, (y + this.prop.bordersize) * zoomAmount, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                }
+                                else {
+                                    ctx.fillRect(x * zoomAmount, y * zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                }
+                            }
                         }
                         
                     }
                 }
+                if (this.options.border && this.options.bordercolor){
+                    var bordersize = 1;
+                    if(this.options.bordersize){
+                        bordersize = this.prop.bordersize;
+                    }
+                    if (this.prop.border != 0) {
+                        var colour = {
+                            r: this.prop.bordercolor.r,
+                            g: this.prop.bordercolor.g,
+                            b: this.prop.bordercolor.b,
+                            a: this.prop.bordercolor.a,
+                        }
+                        drawBorder(x * zoomAmount, y * zoomAmount, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount, bordersize * zoomAmount, this.prop.border, colour);
+
+                    }
+                }
             }
             else { return; }
+            //if style = 1 and there is a background, draw background but wiht backcolour overlayed
+            //if ^ and no backcolour but background, draw black
+            //if style = 3 and no background draw default texture. If there is a background draw image with forcolor overlayed
         }
     }
 
@@ -339,6 +423,37 @@
             screenSize.x = screenSize.x == 640 ? 720 : screenSize.x == 720 ? 853 : 640;
             currentScreenImage = currentScreenImage == "screen_image_1" ? "screen_image_2" : currentScreenImage == "screen_image_2" ? "screen_image_3" : "screen_image_1";
         })
+        document.getElementById("uploadbackground").addEventListener("change", (e) =>{
+            var reader = new FileReader();
+            reader.onload = () =>{
+                backgroundImage.src = event.target.result;
+                menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.background = backgroundImage.name;
+                var filename = backgroundImage.src.replace(/^.*[\\\/]/, '');
+                console.log(filename );
+                updateOptions();
+            }
+            reader.readAsDataURL(e.target.files[0]); 
+        })
+        menuCanvas.addEventListener("mousedown", (e) => {
+            const cvn = canvas.getBoundingClientRect();
+            oldMousePos.x = event.clientX -cvn.left;
+            oldMousePos.y = event.clientY - cvn.top;
+            mouseClickFlag = true;
+        })
+        document.addEventListener("mouseup", (e) =>{
+            mouseClickFlag = false;
+        })
+        menuCanvas.addEventListener("mousemove", (e) => {
+            const cvn = canvas.getBoundingClientRect();
+            if (mouseClickFlag){
+                const mousepos = {
+                    x: event.clientX - cvn.left,
+                    y: event.clientY - cvn.top
+                }
+                animateRect(mousepos);
+            }
+            
+        })
     }
 
 
@@ -361,6 +476,20 @@
         else {
             screenctx.clearRect(0, 0, screen.width, screen.height);
         }
+    }
+
+    //moving rects around
+    animateRect = (mousepos) =>{
+        if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
+        const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
+
+        rect.x += mousepos.x - oldMousePos.x;
+        rect.y += mousepos.y - oldMousePos.y;
+
+        const cvn = canvas.getBoundingClientRect();
+        oldMousePos.x = event.clientX - cvn.left;
+        oldMousePos.y = event.clientY - cvn.top;
+        updateOptions();
     }
 
     //draw border function
@@ -467,9 +596,12 @@
         
     }
 
+    //convert colours to 0-255 rgb number
     convertColour = (x) =>{
         return x*255;
     }
+
+    
 
     //create a new menuDef
     newMenuDef = () =>{
@@ -673,10 +805,27 @@
                 })
                 del.appendChild(button2)
 
+                const down = document.createElement("td");
+                const button4 = document.createElement("button");
+                button4.type = "button";
+                button4.id = "itemdefdown_" + i;
+                button4.appendChild(document.createTextNode("Move down"));
+                button4.addEventListener("click", (event) =>{
+                    const id = event.target.id.split("_")[1];
+                    if(id == 0)return;
+                    console.log(id);
+                    const temp = menuDefs[selectedMenuDef].itemDefList[id-1];
+                    menuDefs[selectedMenuDef].itemDefList[id-1] = menuDefs[selectedMenuDef].itemDefList[id]
+                    menuDefs[selectedMenuDef].itemDefList[id] = temp;
+                    updateItemDefTable();
+                })
+                down.appendChild(button4);
+
                 tr.appendChild(name);
                 tr.appendChild(select);
                 tr.appendChild(cpy);
                 tr.appendChild(del);
+                tr.appendChild(down);
                 table.appendChild(tr);
             }
         }
@@ -1009,7 +1158,7 @@
                             else if(option == "exp"){
                                 text += "\t\t\t" + option + "\t\t\t" + menuDefs[i].itemDefList[z].prop[option] + "\n";
                             }
-                            else if (option == "onFocus" || option == "leaveFocus" || option == "mouseEnter" || option == "mouseExit"){
+                            else if (option == "onFocus" || option == "leaveFocus" || option == "mouseEnter" || option == "mouseExit" || option == "action"){
                                 text += "\t\t\t" + option + "\n\t\t\t{\n";
                                 text += "\t\t\t\t\t" + menuDefs[i].itemDefList[z].prop[option] + "\n";
                                 text += "\t\t\t}\n";
