@@ -8,15 +8,15 @@
     </head>
 
     <body>
-        <div class="sidenav">
+        <div class="sidenav customslider">
             <h2 style="color: aliceblue">IN DEVELOPMENT</h2>
             <div class="buildoptions">
-                <button type="button" id="export">Export menu</button>
-                <button type="button" id="zoomin">Zoom in</button>
-                <button type="button" id="zoomout">Zoom out</button>
-                <button type="button" id="imagetoggle">Toggle game image</button>
-                <button type="button" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
-                <button type="button" id="screenratio">Toggle screen ratio</button>
+                <button type="button" class="btn1" id="export">Export menu</button>
+                <button type="button" class="btn1" id="zoomin">Zoom in</button>
+                <button type="button" class="btn1" id="zoomout">Zoom out</button>
+                <button type="button" class="btn1" id="imagetoggle">Toggle game image</button>
+                <button type="button" class="btn1" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
+                <button type="button" class="btn1" id="screenratio">Toggle screen ratio</button>
                 <p1>Grid snap</p1>
                 <select class="optionselectbox" id="gridsnap">
                     <option value="1">1</option>
@@ -27,7 +27,7 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-                <button type="button" id="guidelines">Guide lines</button>
+                <button type="button" class="btn1" id="guidelines">Guide lines</button>
 
             </div>
             <a download="export.menu" id="exportlink" style="display: block">Download</a>
@@ -39,7 +39,7 @@
             </div>
 
             <div class="menudefoptions" id="menudefoptions">
-                <button type="button" id="newmenudef">New menuDef</button>
+                <button type="button" class="btn1" id="newmenudef">New menuDef</button>
                 <table id="menudefoptiontable">
                     <tr>
                         <td>
@@ -189,7 +189,7 @@
             </div>
 
             <div class="itemdefoptions" id="itemdefoptions">
-                <button type="button" id="newitemdef">New itemDef</button>
+                <button type="button"  class="btn1" id="newitemdef">New itemDef</button>
                 <table id="itemdefoptiontable">
                     <tr>
                         <td><input type="checkbox" class="enabledcheckbox" id="name_item_enable"></td>
@@ -545,7 +545,6 @@
 
                 </table>
 
-                
             </div>
         
         </div>
