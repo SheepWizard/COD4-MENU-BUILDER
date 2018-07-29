@@ -5,18 +5,19 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
 
     <body>
         <div class="sidenav customslider">
             <h2 style="color: aliceblue">IN DEVELOPMENT</h2>
             <div class="buildoptions">
-                <button type="button" class="btn1" id="export">Export menu</button>
-                <button type="button" class="btn1" id="zoomin">Zoom in</button>
-                <button type="button" class="btn1" id="zoomout">Zoom out</button>
-                <button type="button" class="btn1" id="imagetoggle">Toggle game image</button>
-                <button type="button" class="btn1" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
-                <button type="button" class="btn1" id="screenratio">Toggle screen ratio</button>
+                <button type="button" class="btn1 margin-10px" id="export">Export menu</button>
+                <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
+                <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
+                <button type="button" class="btn1 margin-10px" id="imagetoggle">Toggle game image</button>
+                <button type="button" class="btn1 margin-10px" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
+                <button type="button" class="btn1 margin-10px" id="screenratio">Toggle screen ratio</button>
                 <p1>Grid snap</p1>
                 <select class="optionselectbox" id="gridsnap">
                     <option value="1">1</option>
@@ -32,7 +33,7 @@
             </div>
             <a download="export.menu" id="exportlink" style="display: block">Download</a>
             <div class="menudeflist">
-                <p1>MenuDef list</p1>
+                <p1 id="menutoggle" class="cursor">MenuDef list</p1>
                 <table id="menudeflist">
 
                 </table>
@@ -180,12 +181,13 @@
                         </td>
                     </tr>
                 </table>
-                <div class="itemdeflist">
-                    <p1>ItemDef list</p1>
-                    <table id="itemdeflist">
-                    
-                    </table>
-                </div>
+            </div>
+
+            <div class="itemdeflist">
+                <p1 id="classtoggle" class="cursor">ItemDef list</p1>
+                <table id="itemdeflist">
+                
+                </table>
             </div>
 
             <div class="itemdefoptions" id="itemdefoptions">
@@ -560,6 +562,22 @@
         <img id="screen_image_2" style="display: none;" src="images/screen_image_2.jpg">
         <img id="screen_image_3" style="display: none;" src="images/screen_image_3.jpg">
 
+    <!-- Toggle script -->
+    <script>
+    $(document).ready(function(){
+        $("#menutoggle").click(function(){
+            $(".menudefoptions").toggle(500);
+        });
+    });
+    </script>
+
+    <script>
+    $(document).ready(function(){
+        $("#classtoggle").click(function(){
+            $(".itemdefoptions").toggle(500);
+        });
+    });
+    </script>
 
     <script src="js/menuBuilder.js"></script>
     </body>
