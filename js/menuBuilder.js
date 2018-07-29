@@ -768,7 +768,7 @@
     //create a new menuDef
     newMenuDef = () =>{
 
-        //think this is the limit 🤔
+        //think this is the limit 
         if (menuDefs.length == 640) {
             alert("You can not have not then 640 MenuDef's");
             return;
