@@ -1,5 +1,6 @@
 <html>
     <!-- hello -->
+    <!-- https://github.com/SheepWizard/COD4-MENU-BUILDER -->
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -25,6 +26,7 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
+                <button type="button" id="guidelines">Guide lines</button>
 
             </div>
             <a download="export.menu" id="exportlink" style="display: block">Download</a>
@@ -134,6 +136,7 @@
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_menu">
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_menu">
                             </div>
+                            <input id="bordercolor_menu_picker" type="color"/>
                         </td>
                     </tr>
                     <tr>
@@ -531,9 +534,7 @@
                         </td>
                         <td>
                             <div class="tooltip optiontext">decoration
-                                <span class="tooltiptext">Presence of this keyword declares whether this item is a decoration item or not. Non-decoration items would be hotspots,
-                                buttons, sliders, etc., items that cause actions to happen. Decoration items would be menu border graphics, logos, animation
-                                boxes, etc. Basically decoration removes all animations from itemDef.</span>
+                                <span class="tooltiptext">Disable decoration for buttons</span>
                             </div>
                         </td>
                         <td>
