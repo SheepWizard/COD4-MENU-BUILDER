@@ -146,6 +146,8 @@ body{
 
 .cursor{
     cursor: pointer;
+    display: block;
+    padding-top: 5px;
 }
 
 .extrathicc{
