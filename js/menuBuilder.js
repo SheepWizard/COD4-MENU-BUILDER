@@ -8,6 +8,7 @@
         moveup doesnt work
         make snapgrid smoother
         right itemdef border has bit of mendef border in it????
+        when pressing space to add text it still makes copy of itemdef
     */
 
     //   FEATURES TO ADD   //
@@ -63,8 +64,8 @@
         this.prop = {
             name: itemname,
             rect: {
-                x: 0,
-                y: 0,
+                x: 100,
+                y: 100,
                 width: 100,
                 height: 100,
                 alignx: 0,
@@ -134,6 +135,9 @@
             mouseExit: false,
             decoration: false,
         }
+
+        this.textBlink = true;
+        this.textBlinkAlpha = 1;
 
         this.menuDefIndex;
 
@@ -242,27 +246,82 @@
                 this.drawPos.y = y;
 
                 
-                //text shows on both types
-                //forecolour is text colour
                 //text seems to disapear when hovering over rectangle
-                //shadow text has shadow colour of backcolor
                 //align left goes from left to right
                 //align center alignes text in center
                 //align right goes right to left
-                //alignx, aligny offset text by the amount set
-                //text is drawn ontop of rect
-                //border size offsets the text
-                //just need text for it to be drawn
-                //account for zoom
 
                 drawText = () =>{
                     if (this.options.text && this.prop.text != "") {
-                        //add offset
-                        //add menudef border offset
-                        ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + this.prop.forecolor.a + ")";
-                        const x = (this.prop.x + this.prop.bordersize + this.prop.alignx) * zoomAmount;
-                        const y = (this.prop.y + this.prop.bordersize + this.prop.aligny) * zoomAmount;
-                        ctx.fillText(this.prop.text, x, y);
+                        var font = 37;
+                        var fontx = x;
+                        var fonty = y - 10;
+                        if(this.options.textscale){
+                            font = this.prop.textscale*37;
+                        }
+                        if (this.options.border && this.options.bordercolor && this.prop.border != 0){
+                            fontx += this.prop.bordersize;
+                            fonty += this.prop.bordersize;
+                        }
+                        if(this.options.textalignx){
+                            fontx += this.prop.textalignx;
+                        }
+                        if(this.options.textaligny){
+                            fonty += this.prop.textaligny;
+                        }
+                        font *= zoomAmount;
+                        ctx.font = "" + font + "px Arial";
+
+                        if(this.options.textalign){
+                            if(this.prop.textalign == 0){
+                                ctx.textAlign = "left";
+                            }
+                            else if(this.prop.textalign == 1){
+                                ctx.textAlign = "center";
+                                fontx += (this.prop.rect.width/2) * zoomAmount;
+                            }
+                            else if(this.prop.textalign == 2){
+                                ctx.textAlign = "right";
+                                fontx += this.prop.rect.width * zoomAmount;
+                            }
+                        }
+
+                        if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 3){
+                            ctx.fillStyle = "rgba(0,0,0,"+this.prop.forecolor.a+")";
+                            ctx.fillText(this.prop.text, fontx+1, fonty+1);
+                        }
+                        if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 1) {
+                            //blinking could be improved
+                            if (this.textBlink){
+                                if(this.textBlinkAlpha >= this.prop.forecolor.a){
+                                    this.textBlink = false;
+                                    return;
+                                }
+                                this.textBlinkAlpha += 0.01;
+                            }
+                            else{
+                                if (this.textBlinkAlpha <= this.prop.forecolor.a/1.3){
+                                    this.textBlink = true;
+                                    return;
+                                }
+                                this.textBlinkAlpha -= 0.01;
+                            }
+                            ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + this.textBlinkAlpha + ")";
+                            ctx.fillText(this.prop.text, fontx, fonty);
+                            return;
+                        }
+                        else {
+                            if (this.options.forecolor) {
+                                ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + this.prop.forecolor.a + ")";
+                            }
+                            else {
+                                ctx.fillStyle = "rgba(255,255,255,1)";
+                            }
+                            ctx.fillText(this.prop.text, fontx, fonty);
+                        }
+                        
+                        
+                        
                     } 
                 }
 
@@ -434,20 +493,20 @@
                 }
             }
 
-            for (var i = 0; i < this.itemDefList.length; i++) {
-                this.itemDefList[i].draw();
-            }   
-            drawGuideLines();
-            
-            drawSelectorLines = () =>{
-                if(this.selectedItemDef != undefined){
+            drawSelectorLines = () => {
+                if (this.selectedItemDef != undefined) {
                     const def = this.itemDefList[this.selectedItemDef];
-                    if(def == undefined){return;}
-                    ctx.strokeRect(def.drawPos.x - 5, def.drawPos.y -5,  (def.prop.rect.width * zoomAmount) + 10,  (def.prop.rect.height *zoomAmount) + 10);
+                    if (def == undefined) { return; }
+                    ctx.strokeRect(def.drawPos.x - 5, def.drawPos.y - 5, (def.prop.rect.width * zoomAmount) + 10, (def.prop.rect.height * zoomAmount) + 10);
                     //ctx.strokeStyle = "red";
                     ctx.stroke();
                 }
             }
+
+            for (var i = 0; i < this.itemDefList.length; i++) {
+                this.itemDefList[i].draw();
+            }   
+            drawGuideLines();
             drawSelectorLines();
         }
     }
@@ -498,49 +557,52 @@
                 backgroundImage.src = event.target.result;
                 menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.background = backgroundImage.name;
                 var filename = backgroundImage.src.replace(/^.*[\\\/]/, '');
-                console.log(filename );
                 updateOptions();
             }
             reader.readAsDataURL(e.target.files[0]); 
         })
         document.getElementById("gridsnap").addEventListener("input", (e) =>{
-            gridSnap = event.target.value;
+            gridSnap = parseInt(event.target.value);
         })
         document.addEventListener("keydown", (e) =>{
             if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
             const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
-            console.log(e.keyCode);
-            //up arrow
-            if(e.keyCode == 38){
-                rect.y -= gridSnap;
-                updateOptions();
-            }
-            //left arrow
-            if(e.keyCode == 37){
-                rect.x -= gridSnap;
-                updateOptions();
-            }
-            //right arrow
-            if(e.keyCode == 39){
-                rect.x += gridSnap;
-                updateOptions();
-            }
-            //down arrow
-            if(e.keyCode == 40){
-                rect.y += gridSnap;
-                updateOptions();
-            }
-            //delete
-            if(e.keyCode == 46){
-                deleteItemDef(menuDefs[selectedMenuDef].selectedItemDef);
-            }
-            //space
-            if(e.keyCode == 32){
-                const copy = cloneDef(menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef], "itemDef");
-                menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
-                menuDefs[selectedMenuDef].itemDefList.push(copy);
-                updateOptions();
-                updateItemDefTable();
+            
+            switch(e.keyCode){
+                //left arrow
+                case 37:
+                    rect.x -= gridSnap;
+                    updateOptions();
+                    break;
+                //up arrow
+                case 38:
+                    rect.y -= gridSnap;
+                    updateOptions();
+                    break;
+                    //right arrow
+                case 39:
+                    rect.x += gridSnap;
+                    updateOptions();
+                    break;
+                //down arrow
+                case 40:
+                    rect.y += gridSnap;
+                    updateOptions();
+                    break;
+                //delete
+                case 46:
+                    deleteItemDef(menuDefs[selectedMenuDef].selectedItemDef);
+                    break;
+                //space
+                case 32:
+                    const copy = cloneDef(menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef], "itemDef");
+                    menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
+                    menuDefs[selectedMenuDef].itemDefList.push(copy);
+                    updateOptions();
+                    updateItemDefTable();
+                    break;
+                default:
+                    break;
             }
         })
         document.getElementById("guidelines").addEventListener("click", () =>{
@@ -1280,7 +1342,13 @@
         var textFile;
         document.getElementById("export").addEventListener("click", () => {
             const string = createMenuFile();
-            document.getElementById("exportlink").href = makeTextFile(string);
+            const file =  makeTextFile(string);
+            const elm = document.createElement("a");
+            elm.href = file;
+            elm.download = "export.menu";
+            document.body.appendChild(elm);
+            elm.click();
+            document.body.removeChild(elm); 
         })
 
         makeTextFile = (text) => {
