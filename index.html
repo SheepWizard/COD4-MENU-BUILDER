@@ -10,8 +10,28 @@
 
     <body>
         <div class="sidenav customslider">
-            <h2 style="color: aliceblue">IN DEVELOPMENT</h2>
-            <div class="buildoptions">
+            <h1 style="color: aliceblue">IN DEVELOPMENT</h1>
+
+            <p1 id="introtoggle" class="cursor extrathicc">Introduction</p1>
+            <div class="optionbackground introtoggle">
+                <p1>This is a website to build .menu files for Call of Duty 4 (will probably also work for WaW).
+                    <br> See the help section for information on building a menu.
+                    <br><br> You can follow the project and help contribute here: <a href="https://github.com/SheepWizard/COD4-MENU-BUILDER">GitHub</a>
+
+                    <br> If you find any bug report them here: <a href="https://github.com/SheepWizard/COD4-MENU-BUILDER/issues">GitHub issues</a>
+
+                </p1>
+            </div>
+
+            <p1 id="helptoggle" class="cursor extrathicc">Help</p1>
+            <div class="helpoptions optionbackground" style="display: none">
+                <button type="button" class="btn margin-10px">Getting started</button>
+                <button type="button" class="btn margin-10px">Making a button</button>
+            </div>
+
+            <p1 id="optiontoggle" class="cursor extrathicc">Builder Options</p1>
+            
+            <div class="buildoptions optionbackground" style="display: none">
                 <button type="button" class="btn1 margin-10px" id="export">Export menu</button>
                 <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
                 <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
@@ -32,15 +52,17 @@
 
             </div>
             <div class="menudeflist">
-                <p1 class="extrathicc">MenuDef list</p1>
-                <table id="menudeflist">
+                <p1 id="menudeflisttoggle" class="extrathicc cursor">MenuDef list</p1>
+                <div class="menudeflistdiv optionbackground" style="display: none">
+                    <table id="menudeflist">
 
-                </table>
+                    </table>
+                </div>
             </div>
 
-            <p1 id="menutoggle" class="cursor">MenuDef Options</p1>
+            <p1 id="menutoggle" class="cursor extrathicc">MenuDef Options</p1>
 
-            <div class="menudefoptions" id="menudefoptions">
+            <div class="menudefoptions optionbackground" id="menudefoptions">
                 <button type="button" class="btn1" id="newmenudef">New menuDef</button>
                 <table id="menudefoptiontable">
                     <tr>
@@ -64,7 +86,7 @@
                             <div class="tooltip optiontext">rect
                                 <span class="tooltiptext">Define a rectangle on the screen for the menu to occupy. Menu rectangles may overlap; the last rect defined sits on top.
                                 Nested items are offset from this rect's left and top edges (meaning this rect acts as a new "mini-screen" for coordinates
-                                for the items inside). ItemDefs can be drawn outside the MenuDef but any interactions with when will not work.</span>
+                                for the items inside). ItemDefs can be drawn outside the MenuDef but any interactions with when will not work. e.g. Do not put a button outside the MenuDef</span>
                             </div>
                         </td>
                         <td>
@@ -183,16 +205,17 @@
                     </tr>
                 </table>
                 <div class="itemdeflist">
-                    <p1 class="extrathicc">ItemDef list</p1>
-                    <table id="itemdeflist">
-                    
-                    </table>
+                    <p1 id="itemdeftoggle" class="extrathicc cursor">ItemDef list</p1>
+                    <div class="itemdeftogglelist optionbackground">
+                        <table id="itemdeflist">
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <p1 id="classtoggle" class="cursor">ItemDef Options</p1>
+            <p1 id="classtoggle" class="cursor extrathicc">ItemDef Options</p1>
 
-            <div class="itemdefoptions" id="itemdefoptions">
+            <div class="itemdefoptions optionbackground" id="itemdefoptions">
                 <button type="button"  class="btn1" id="newitemdef">New itemDef</button>
                 <table id="itemdefoptiontable">
                     <tr>
@@ -569,16 +592,44 @@
 
     <!-- Toggle script -->
     <script>
-    $(document).ready(function(){
-        $("#menutoggle").click(function(){
-            $(".menudefoptions").toggle(500);
-        });
-    });
-    $(document).ready(function () {
-            $("#classtoggle").click(function () {
-                $(".itemdefoptions").toggle(500);
+        $(document).ready(function(){
+            $("#menutoggle").click(function(){
+                $(".menudefoptions").slideToggle(500);
             });
         });
+        $(document).ready(function () {
+                $("#classtoggle").click(function () {
+                    $(".itemdefoptions").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+                $("#optiontoggle").click(function () {
+                    $(".buildoptions").slideToggle();
+                });
+            });
+        $(document).ready(function () {
+                $("#helptoggle").click(function () {
+                    $(".helpoptions").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+                $("#menudeflisttoggle").click(function () {
+                    $(".menudeflistdiv").slideToggle(500);
+                });
+            });
+         $(document).ready(function () {
+                $("#itemdeftoggle").click(function () {
+                    $(".itemdeftogglelist").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+            $("#introtoggle").click(function () {
+                $(".introtoggle").slideToggle(500);
+            });
+        });
+
+            
+        
     </script>
 
     <script src="js/menuBuilder.js"></script>
