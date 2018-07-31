@@ -5,16 +5,14 @@
         fullscreen alignment needs to stretch itemdef
         change how image colour overlay is applied
         load image from itemdef background name
-        moveup doesnt work
-        make snapgrid smoother
-        right itemdef border has bit of mendef border in it????
-        when pressing space to add text it still makes copy of itemdef
+        make snapgrid smoother -- make it work properly when zoomed in
     */
 
     //   FEATURES TO ADD   //
     /*
+        add deroration warning, you want decoration on everything but buttons with action
         default shader
-        set colour with rgba picker
+        add way to deselect
         upload images
         save progress
         console showing onopen / onclose / onesc text
@@ -40,9 +38,9 @@
         x: 640,
         y: 480
     }
-    //720x480
-    //640*480
-    //853x480
+    //720x480 16:10
+    //853x480 16:9
+    //640*480 4:3
     const oldMousePos = {
         x: 0,
         y: 0
@@ -73,14 +71,14 @@
             },
             style: 1,
             backcolor:  {
-                r: 0.25,
+                r: 1,
                 g: 0.25,
                 b: 0.25,
                 a: 1,
             },
             forecolor: {
                 r: 0.25,
-                g: 0.25,
+                g: 1,
                 b: 0.25,
                 a: 1,
             },
@@ -91,7 +89,7 @@
             bordercolor: {
                 r: 0.5,
                 g: 0.5,
-                b: 0.5,
+                b: 1,
                 a: 1,
             },  
             type: 0,
@@ -151,11 +149,11 @@
             if(this.options.exp){
                 if(this.prop.exp == ""){
                     alert("Menu will not compile with empty exp value!");
-                    this.prop.exp = "text(dvarString(\"com_maxfps\"))";
+                    this.prop.exp = "text(\"temp text \")";
                     updateOptions();
                     return;
                 }
-            }
+            } 
 
             if (buttonWarning && this.prop.type != 1 && (this.options.action || this.options.onFocus || this.options.leaveFocus || this.options.mouseEnter || this.options.mouseExit)){
                 if (confirm("action, onFocus, leaveFocus, mouseEnter, mouseExit, will not work if type is not equal to \"ITEM_TYPE_BUTTON\".\n")){
@@ -414,6 +412,7 @@
     }
 
     MenuDef = function(menuName){
+
         this.prop = {
             name: menuName,
             rect: {
@@ -497,9 +496,12 @@
                 if (this.selectedItemDef != undefined) {
                     const def = this.itemDefList[this.selectedItemDef];
                     if (def == undefined) { return; }
+                    ctx.beginPath();
                     ctx.strokeRect(def.drawPos.x - 5, def.drawPos.y - 5, (def.prop.rect.width * zoomAmount) + 10, (def.prop.rect.height * zoomAmount) + 10);
-                    //ctx.strokeStyle = "red";
                     ctx.stroke();
+                    ctx.closePath();
+                    ctx.fillStyle = "rgb(0,0,0)";
+                    ctx.fillRect(def.drawPos.x + (def.prop.rect.width * zoomAmount), def.drawPos.y + (def.prop.rect.height * zoomAmount),  10,  10);
                 }
             }
 
@@ -513,6 +515,7 @@
 
     //  EVENT LISTENERS //
     window.onload = () => {
+        browserCheck();
         optionsEventListeners();
 
         document.getElementById("newitemdef").addEventListener("click", () => {
@@ -565,72 +568,81 @@
             gridSnap = parseInt(event.target.value);
         })
         document.addEventListener("keydown", (e) =>{
+            if(selectedMenuDef == undefined){return;}
             if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
             const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
-            
-            switch(e.keyCode){
-                //left arrow
-                case 37:
-                    rect.x -= gridSnap;
-                    updateOptions();
-                    break;
-                //up arrow
-                case 38:
-                    rect.y -= gridSnap;
-                    updateOptions();
-                    break;
+            if(document.activeElement.nodeName == "BODY")
+            {
+                switch (e.keyCode) {
+                    //left arrow
+                    case 37:
+                        rect.x -= gridSnap;
+                        updateOptions();
+                        break;
+                    //up arrow
+                    case 38:
+                        rect.y -= gridSnap;
+                        updateOptions();
+                        break;
                     //right arrow
-                case 39:
-                    rect.x += gridSnap;
-                    updateOptions();
-                    break;
-                //down arrow
-                case 40:
-                    rect.y += gridSnap;
-                    updateOptions();
-                    break;
-                //delete
-                case 46:
-                    deleteItemDef(menuDefs[selectedMenuDef].selectedItemDef);
-                    break;
-                //space
-                case 32:
-                    const copy = cloneDef(menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef], "itemDef");
-                    menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
-                    menuDefs[selectedMenuDef].itemDefList.push(copy);
-                    updateOptions();
-                    updateItemDefTable();
-                    break;
-                default:
-                    break;
+                    case 39:
+                        rect.x += gridSnap;
+                        updateOptions();
+                        break;
+                    //down arrow
+                    case 40:
+                        rect.y += gridSnap;
+                        updateOptions();
+                        break;
+                    //delete
+                    case 46:
+                        deleteItemDef(menuDefs[selectedMenuDef].selectedItemDef);
+                        break;
+                    //space
+                    case 32:
+                        const copy = cloneDef(menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef], "itemDef");
+                        menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length - 1;
+                        menuDefs[selectedMenuDef].itemDefList.push(copy);
+                        updateOptions();
+                        updateItemDefTable();
+                        break;
+                    default:
+                        break;
+                }
             }
+            
         })
         document.getElementById("guidelines").addEventListener("click", () =>{
             guideLines = !guideLines
         })
-        document.getElementById("bordercolor_menu_picker").addEventListener("change", (e) =>{
-            setColour(e.target.id, e.target.value);
-        })
-        menuCanvas.addEventListener("mousedown", (e) => {
+        
+        menuCanvas.addEventListener("mousedown", (event) => {
             const cvn = canvas.getBoundingClientRect();
-            oldMousePos.x = event.clientX -cvn.left;
+            oldMousePos.x = event.clientX - cvn.left;
             oldMousePos.y = event.clientY - cvn.top;
             mouseClickFlag = true;
         })
-        document.addEventListener("mouseup", (e) =>{
+        document.addEventListener("mouseup", () =>{
             mouseClickFlag = false;
         })
-        menuCanvas.addEventListener("mousemove", (e) => {
+        menuCanvas.addEventListener("mousemove", (event) => {
             const cvn = canvas.getBoundingClientRect();
             if (mouseClickFlag){
                 const mousepos = {
                     x: event.clientX - cvn.left,
                     y: event.clientY - cvn.top
                 }
-                animateRect(mousepos);
+                animateRect(mousepos, event);
             }
             
         })
+
+        const colourPickers = document.querySelectorAll("input[type='color']")
+        for (var i = 0; i < colourPickers.length; i++){
+            colourPickers[i].addEventListener("change", (e) => {
+                setColour(e.target.id, e.target.value);
+            })
+        }
 
     }
 
@@ -656,22 +668,37 @@
     }
 
     setColour = (id, colour) =>{
+        if(selectedMenuDef == undefined){return;}
         const rgb = hexToRgb(colour);
         const tkn = id.split("_");
         const div = tkn[0] + "_" + tkn[1];
+        const menu = menuDefs[selectedMenuDef];
+        const item = menu.itemDefList[menu.selectedItemDef];
         inputs = document.getElementById(div).querySelectorAll(".optionnumberbox");
         for(var i = 0; i<inputs.length-1; i++){
-            console.log(inputs[i].value);
             if(i == 0){
-                console.log(rgb.b / 255);
-                inputs[i].value = 0.5; continue;
-                
+                if(tkn[1] == "item" && item){
+                    item.prop[tkn[0]].r = parseFloat((rgb.r / 255)).toFixed(3); continue; 
+                }
+                else if(tkn[1] == "menu"){
+                    menu.prop[tkn[0]].r = parseFloat((rgb.r / 255)).toFixed(3); continue; 
+                }  
             }
             if(i == 1){
-                inputs[i].value = rgb.g/255; continue;
+                if (tkn[1] == "item" && item) {
+                    item.prop[tkn[0]].g = parseFloat((rgb.g / 255)).toFixed(3); continue;
+                }
+                else if (tkn[1] == "menu") {
+                    menu.prop[tkn[0]].g = parseFloat((rgb.g / 255)).toFixed(3); continue;
+                }  
             } 
             if(i == 2){
-                inputs[i].value = rgb.b/255; continue;
+                if (tkn[1] == "item" && item) {
+                    item.prop[tkn[0]].b = parseFloat((rgb.b / 255)).toFixed(3); continue;
+                }
+                else if (tkn[1] == "menu") {
+                    menu.prop[tkn[0]].b = parseFloat((rgb.b / 255)).toFixed(3); continue;
+                }  
             }
         }
         updateOptions();
@@ -692,16 +719,24 @@
     }
 
     //moving rects around
-    animateRect = (mousepos) =>{
+    animateRect = (mousepos, event) =>{
         if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
         const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
+        const item = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef];
 
-        //snapping
-        const xval = rect.x + (mousepos.x - oldMousePos.x);
-        const yval = rect.y + (mousepos.y - oldMousePos.y);
-        //check if pos needs to be rounded up or down
-        rect.x = (xval%gridSnap) > gridSnap /2 ? Math.ceil(xval/gridSnap) * gridSnap : Math.floor(xval/gridSnap) * gridSnap;
-        rect.y = (yval%gridSnap) > gridSnap /2 ? Math.ceil(yval/gridSnap) * gridSnap : Math.floor(yval/gridSnap) * gridSnap;
+        if (mousepos.x > item.drawPos.x + (rect.width * zoomAmount) && mousepos.x < item.drawPos.x + (rect.width * zoomAmount) + 30 && mousepos.y > item.drawPos.y + (rect.height * zoomAmount) && mousepos.y < item.drawPos.y + (rect.height*zoomAmount) + 30){
+            rect.width += mousepos.x - oldMousePos.x;
+            rect.height += mousepos.y - oldMousePos.y;
+        }
+        else{
+            //snapping
+            const xval = rect.x + (mousepos.x - oldMousePos.x);
+            const yval = rect.y + (mousepos.y - oldMousePos.y);
+            //check if pos needs to be rounded up or down
+            rect.x = (xval % gridSnap) > gridSnap / 2 ? Math.ceil(xval / gridSnap) * gridSnap : Math.floor(xval / gridSnap) * gridSnap;
+            rect.y = (yval % gridSnap) > gridSnap / 2 ? Math.ceil(yval / gridSnap) * gridSnap : Math.floor(yval / gridSnap) * gridSnap;
+        }
+        
     
         const cvn = canvas.getBoundingClientRect();
         oldMousePos.x = event.clientX - cvn.left;
@@ -715,6 +750,15 @@
             ctx.fillStyle = "rgba(0,0,0,1)";
             ctx.fillRect(0, (menuCanvas.height / 2) - 1, menuCanvas.width, 2);
             ctx.fillRect((menuCanvas.width / 2) - 1, 0, 2, menuCanvas.height);
+        }
+    }
+    //stuff doesnt work on edge and cba to test on safari
+    browserCheck = () =>{
+        var isIE = /*@cc_on!@*/false || !!document.documentMode;
+        var isEdge = !isIE && !!window.StyleMedia;
+        var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+        if(isEdge || isSafari){
+            alert("This website may not work properly on your browser. Please use the latest version of chrome or firefox instead.");
         }
     }
 
@@ -1026,7 +1070,7 @@
                 button4.id = "itemdefdown_" + i;
                 button4.appendChild(document.createTextNode("Move down"));
                 button4.addEventListener("click", (event) =>{
-                    const id = event.target.id.split("_")[1];
+                    const id = parseInt(event.target.id.split("_")[1]);
                     if(id == 0)return;
                     const temp = menuDefs[selectedMenuDef].itemDefList[id-1];
                     menuDefs[selectedMenuDef].itemDefList[id-1] = menuDefs[selectedMenuDef].itemDefList[id]
@@ -1041,7 +1085,7 @@
                 button5.id = "itemdefup_" + i;
                 button5.appendChild(document.createTextNode("Move up"));
                 button5.addEventListener("click", (event) =>{
-                    const id = event.target.id.split("_")[1];
+                    const id = parseInt(event.target.id.split("_")[1]);
                     if (id == menuDefs[selectedMenuDef].itemDefList.length-1) return;
                     const temp = menuDefs[selectedMenuDef].itemDefList[id+1];
                     menuDefs[selectedMenuDef].itemDefList[id+1] = menuDefs[selectedMenuDef].itemDefList[id]

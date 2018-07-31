@@ -16,7 +16,7 @@
                 <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
                 <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
                 <button type="button" class="btn1 margin-10px" id="imagetoggle">Toggle game image</button>
-                <button type="button" class="btn1 margin-10px" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
+                <button type="button" class="btn1 margin-10px" id="outlinetoggle">Toggle screen outline</button>
                 <button type="button" class="btn1 margin-10px" id="screenratio">Toggle screen ratio</button>
                 <p1>Grid snap</p1>
                 <select class="optionselectbox" id="gridsnap">
@@ -273,6 +273,7 @@
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                             </div>
+                            <input id="backcolor_item_picker" type="color" />
                         </td>
                     </tr>
                     <tr>
@@ -292,6 +293,7 @@
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
                                 <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                             </div>
+                            <input id="forecolor_item_picker" type="color" />
                         </td>
                     </tr>
                     <tr>
@@ -363,6 +365,7 @@
                             <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="b_item">
                             <input type="number" min="0" max="1" step="0.01" class="optionnumberbox" id="a_item">
                         </div>
+                        <input id="bordercolor_item_picker" type="color" />
                          </td>
 
                     </tr>
@@ -571,14 +574,11 @@
             $(".menudefoptions").toggle(500);
         });
     });
-    </script>
-
-    <script>
-    $(document).ready(function(){
-        $("#classtoggle").click(function(){
-            $(".itemdefoptions").toggle(500);
+    $(document).ready(function () {
+            $("#classtoggle").click(function () {
+                $(".itemdefoptions").toggle(500);
+            });
         });
-    });
     </script>
 
     <script src="js/menuBuilder.js"></script>
