@@ -1,22 +1,23 @@
 <html>
     <!-- hello -->
-    <!-- hello -->
     <!-- https://github.com/SheepWizard/COD4-MENU-BUILDER -->
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/memes.js"></script>
     </head>
 
     <body>
-        <div class="sidenav">
+        <div class="sidenav customslider">
             <h2 style="color: aliceblue">IN DEVELOPMENT</h2>
             <div class="buildoptions">
-                <button type="button" id="export">Export menu</button>
-                <button type="button" id="zoomin">Zoom in</button>
-                <button type="button" id="zoomout">Zoom out</button>
-                <button type="button" id="imagetoggle">Toggle game image</button>
-                <button type="button" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
-                <button type="button" id="screenratio">Toggle screen ratio</button>
+                <button type="button" class="btn1 margin-10px" id="export">Export menu</button>
+                <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
+                <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
+                <button type="button" class="btn1 margin-10px" id="imagetoggle">Toggle game image</button>
+                <button type="button" class="btn1 margin-10px" id="outlinetoggle">Toggle MenuDef/Screen outline</button>
+                <button type="button" class="btn1 margin-10px" id="screenratio">Toggle screen ratio</button>
                 <p1>Grid snap</p1>
                 <select class="optionselectbox" id="gridsnap">
                     <option value="1">1</option>
@@ -27,18 +28,20 @@
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-                <button type="button" id="guidelines">Guide lines</button>
+                <button type="button" class="btn1" id="guidelines">Guide lines</button>
 
             </div>
             <div class="menudeflist">
-                <p1>MenuDef list</p1>
+                <p1 class="extrathicc">MenuDef list</p1>
                 <table id="menudeflist">
 
                 </table>
             </div>
 
+            <p1 id="menutoggle" class="cursor">MenuDef Options</p1>
+
             <div class="menudefoptions" id="menudefoptions">
-                <button type="button" id="newmenudef">New menuDef</button>
+                <button type="button" class="btn1" id="newmenudef">New menuDef</button>
                 <table id="menudefoptiontable">
                     <tr>
                         <td>
@@ -180,15 +183,17 @@
                     </tr>
                 </table>
                 <div class="itemdeflist">
-                    <p1>ItemDef list</p1>
+                    <p1 class="extrathicc">ItemDef list</p1>
                     <table id="itemdeflist">
                     
                     </table>
                 </div>
             </div>
 
+            <p1 id="classtoggle" class="cursor">ItemDef Options</p1>
+
             <div class="itemdefoptions" id="itemdefoptions">
-                <button type="button" id="newitemdef">New itemDef</button>
+                <button type="button"  class="btn1" id="newitemdef">New itemDef</button>
                 <table id="itemdefoptiontable">
                     <tr>
                         <td><input type="checkbox" class="enabledcheckbox" id="name_item_enable"></td>
@@ -544,7 +549,6 @@
 
                 </table>
 
-                
             </div>
         
         </div>
@@ -560,6 +564,22 @@
         <img id="screen_image_2" style="display: none;" src="images/screen_image_2.jpg">
         <img id="screen_image_3" style="display: none;" src="images/screen_image_3.jpg">
 
+    <!-- Toggle script -->
+    <script>
+    $(document).ready(function(){
+        $("#menutoggle").click(function(){
+            $(".menudefoptions").toggle(500);
+        });
+    });
+    </script>
+
+    <script>
+    $(document).ready(function(){
+        $("#classtoggle").click(function(){
+            $(".itemdefoptions").toggle(500);
+        });
+    });
+    </script>
 
     <script src="js/menuBuilder.js"></script>
     </body>
