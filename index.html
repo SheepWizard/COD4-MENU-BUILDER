@@ -27,6 +27,7 @@
             <div class="helpoptions optionbackground" style="display: none">
                 <button type="button" class="btn margin-10px">Getting started</button>
                 <button type="button" class="btn margin-10px">Making a button</button>
+                <button type="button" class="btn margin-10px">Added a background image</button>
             </div>
 
             <p1 id="optiontoggle" class="cursor extrathicc">Builder Options</p1>
@@ -499,7 +500,6 @@
                         </td>
                         <td> 
                             <textarea row="1" class="optionstextbox" id="background_item"></textarea>
-                            <input type="file" id="uploadbackground">
                         </td>
                     </tr>
                     <tr>
@@ -576,6 +576,14 @@
                 </table>
 
             </div>
+
+            <p1 class="extrathicc cursor" id="imagelisttoggle">Images</p1>
+            <div class="optionbackground imagelisttoggle">
+                <input type="file" id="uploadbackground">
+                <table id="imagelist">
+                    
+                </table>
+            </div>
         
         </div>
 
@@ -625,6 +633,11 @@
         $(document).ready(function () {
             $("#introtoggle").click(function () {
                 $(".introtoggle").slideToggle(500);
+            });
+        });
+        $(document).ready(function () {
+            $("#imagelisttoggle").click(function () {
+                $(".imagelisttoggle").slideToggle(500);
             });
         });
 

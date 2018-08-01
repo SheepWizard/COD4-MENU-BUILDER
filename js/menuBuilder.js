@@ -11,9 +11,7 @@
     //   FEATURES TO ADD   //
     /*
         add deroration warning, you want decoration on everything but buttons with action
-        default shader
         add way to deselect
-        upload images
         save progress
         console showing onopen / onclose / onesc text
         import menu files
@@ -28,7 +26,7 @@
     var toggleOutline = true;
     var zoomAmount = 1;
     var selectedMenuDef;
-    var backgroundImage = new Image();
+    var backgroundImage = [];
     var mouseClickFlag = false;
     var gridSnap = 1;
     var buttonWarning = true;
@@ -243,6 +241,18 @@
                 this.drawPos.x = x;
                 this.drawPos.y = y;
 
+                const image = new Image();
+
+                end: if(this.options.background && this.prop.backcolor != ""){
+                    for(var i = 0; i<backgroundImage.length; i++){
+                        if(backgroundImage[i].name.split(".")[0] == this.prop.background){
+                            image.src = backgroundImage[i].src;
+                            break end;
+                        }  
+                    }
+                    image.src = "images/default.png";
+                }
+
                 
                 //text seems to disapear when hovering over rectangle
                 //align left goes from left to right
@@ -331,12 +341,12 @@
                                     //draw image wth backcolour overlay
                                     if (this.options.backcolor) {
                                         if (this.options.border && this.options.bordercolor && this.prop.border != 0) {
-                                            ctx.drawImage(backgroundImage, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                            ctx.drawImage(image, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                             ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
                                             ctx.fillRect(x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                         }
                                         else {
-                                            ctx.drawImage(backgroundImage, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                            ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                                             ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
                                             ctx.fillRect(x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                                         }
@@ -354,14 +364,14 @@
                                 else if (this.prop.style == 3) {
                                     //draw image with forcolour overlay
                                     if (this.options.border && this.options.bordercolor && this.prop.border != 0) {
-                                        ctx.drawImage(backgroundImage, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                        ctx.drawImage(image, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                         if (this.options.forecolor) {
                                             ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + 0.5 + ")";
                                             ctx.fillRect(x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                         }
                                     }
                                     else {
-                                        ctx.drawImage(backgroundImage, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                        ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                                         if (this.options.forecolor) {
                                             ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + 0.5 + ")";
                                             ctx.fillRect(x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
@@ -557,10 +567,11 @@
         document.getElementById("uploadbackground").addEventListener("change", (e) =>{
             var reader = new FileReader();
             reader.onload = () =>{
-                backgroundImage.src = event.target.result;
-                menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.background = backgroundImage.name;
-                var filename = backgroundImage.src.replace(/^.*[\\\/]/, '');
-                updateOptions();
+                if (e.target.files[0] == undefined){return;}
+                backgroundImage.push(new Image());
+                backgroundImage[backgroundImage.length - 1].src = event.target.result;
+                backgroundImage[backgroundImage.length - 1].name = e.target.files[0].name;
+                updateImageTable();
             }
             reader.readAsDataURL(e.target.files[0]); 
         })
@@ -900,6 +911,42 @@
         menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length-1;
         updateOptions();
         updateItemDefTable();
+    }
+
+    updateImageTable = () =>{
+        const table = document.getElementById("imagelist");
+        table.innerHTML = "";
+        for(var i = 0; i<backgroundImage.length; i++){
+            const tr = document.createElement("tr");
+            const name = document.createElement("td");
+            name.style.color = "#fff";
+            name.appendChild(document.createTextNode(backgroundImage[i].name.split(".")[0]));
+
+            const td = document.createElement("td");
+            const img = document.createElement("img");
+            img.style.width = "100px";
+            img.style.height = "100px";
+            img.src = backgroundImage[i].src;
+            td.appendChild(img);
+
+            const td2 = document.createElement("td");
+            const del = document.createElement("button");
+            del.type = "button";
+            del.id = "imageslistid_"+i;
+            del.appendChild(document.createTextNode("Delete"));
+            del.addEventListener("click", (event) =>{
+                const id = event.target.id.split("_");
+                backgroundImage.splice(id[1], 1);
+                updateImageTable();
+            })
+            td2.appendChild(del);
+
+            tr.appendChild(name);
+            tr.appendChild(td);
+            tr.appendChild(td2);
+            table.appendChild(tr);
+        }
+
     }
 
     updateMenuDefTable = () =>{
