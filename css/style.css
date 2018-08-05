@@ -73,8 +73,8 @@ p1{
 
 /*canvas stlye*/
 .canvas{
-    margin-left: 30%;
-    margin-top: 10%;
+    margin-left: 25%;
+    margin-top: 5%;
     padding: 0px;
     /*remove border, just here for visual aid */
     border-style: solid;
@@ -102,6 +102,7 @@ button {
   border: none;
   /* box-shadow: 0 5px #e7e7e7; */
 }
+
 
 button:hover {background-color: #333}
 
@@ -151,4 +152,6 @@ body{
 .extrathicc{
     font-size: 20px;
     font-family: sans-serif;
+    border-bottom: 1px solid #fff;
+    margin-right: 5px;
 }

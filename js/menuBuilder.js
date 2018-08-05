@@ -3,17 +3,14 @@
      //   BUGS   //
     /*
         fullscreen alignment needs to stretch itemdef
-        change how image colour overlay is applied
-        load image from itemdef background name
-        make snapgrid smoother -- make it work properly when zoomed in
+        add filter to rect drawing
+        make snapgrid smoother
     */
 
     //   FEATURES TO ADD   //
     /*
         add deroration warning, you want decoration on everything but buttons with action
-        add way to deselect
         save progress
-        console showing onopen / onclose / onesc text
         import menu files
         import header files
         support definitions
@@ -30,7 +27,7 @@
     var mouseClickFlag = false;
     var gridSnap = 1;
     var buttonWarning = true;
-    var guideLines;
+    var guideLines = false;
     const menuDefs = [];
     const screenSize = {
         x: 640,
@@ -341,9 +338,7 @@
                                     //draw image wth backcolour overlay
                                     if (this.options.backcolor) {
                                         if (this.options.border && this.options.bordercolor && this.prop.border != 0) {
-                                            ctx.drawImage(image, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
-                                            ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
-                                            ctx.fillRect(x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
+                                            ctx.drawImage(filter, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount); 
                                         }
                                         else {
                                             ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
@@ -564,18 +559,18 @@
             screenSize.x = screenSize.x == 640 ? 720 : screenSize.x == 720 ? 853 : 640;
             currentScreenImage = currentScreenImage == "screen_image_1" ? "screen_image_2" : currentScreenImage == "screen_image_2" ? "screen_image_3" : "screen_image_1";
         })
-        document.getElementById("uploadbackground").addEventListener("change", (e) =>{
+        document.getElementById("uploadbackground").addEventListener("change", (event) =>{
             var reader = new FileReader();
             reader.onload = () =>{
-                if (e.target.files[0] == undefined){return;}
+                if (event.target.files[0] == undefined){return;}
                 backgroundImage.push(new Image());
                 backgroundImage[backgroundImage.length - 1].src = event.target.result;
-                backgroundImage[backgroundImage.length - 1].name = e.target.files[0].name;
+                backgroundImage[backgroundImage.length - 1].name = event.target.files[0].name;
                 updateImageTable();
             }
-            reader.readAsDataURL(e.target.files[0]); 
+            reader.readAsDataURL(event.target.files[0]); 
         })
-        document.getElementById("gridsnap").addEventListener("input", (e) =>{
+        document.getElementById("gridsnap").addEventListener("input", (event) =>{
             gridSnap = parseInt(event.target.value);
         })
         document.addEventListener("keydown", (e) =>{
@@ -626,6 +621,15 @@
         document.getElementById("guidelines").addEventListener("click", () =>{
             guideLines = !guideLines
         })
+
+        window.addEventListener("click", (event) =>{
+            if(event.target.id == "" && event.target.nodeName != "OPTION"){
+                if(selectedMenuDef != undefined){
+                    menuDefs[selectedMenuDef].selectedItemDef = undefined;
+                    updateItemDefTable();
+                }
+            }
+        })
         
         menuCanvas.addEventListener("mousedown", (event) => {
             const cvn = canvas.getBoundingClientRect();
@@ -640,8 +644,8 @@
             const cvn = canvas.getBoundingClientRect();
             if (mouseClickFlag){
                 const mousepos = {
-                    x: event.clientX - cvn.left,
-                    y: event.clientY - cvn.top
+                    x: (event.clientX - cvn.left),
+                    y: (event.clientY - cvn.top) 
                 }
                 animateRect(mousepos, event);
             }
@@ -736,23 +740,48 @@
         const item = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef];
 
         if (mousepos.x > item.drawPos.x + (rect.width * zoomAmount) && mousepos.x < item.drawPos.x + (rect.width * zoomAmount) + 30 && mousepos.y > item.drawPos.y + (rect.height * zoomAmount) && mousepos.y < item.drawPos.y + (rect.height*zoomAmount) + 30){
-            rect.width += mousepos.x - oldMousePos.x;
-            rect.height += mousepos.y - oldMousePos.y;
+            rect.width +=  (mousepos.x - oldMousePos.x) / zoomAmount;
+            rect.height += (mousepos.y - oldMousePos.y) / zoomAmount;
         }
         else{
             //snapping
-            const xval = rect.x + (mousepos.x - oldMousePos.x);
-            const yval = rect.y + (mousepos.y - oldMousePos.y);
+            const xval = rect.x + ((mousepos.x - oldMousePos.x) / zoomAmount);
+            const yval = rect.y + ((mousepos.y - oldMousePos.y) / zoomAmount);
             //check if pos needs to be rounded up or down
             rect.x = (xval % gridSnap) > gridSnap / 2 ? Math.ceil(xval / gridSnap) * gridSnap : Math.floor(xval / gridSnap) * gridSnap;
             rect.y = (yval % gridSnap) > gridSnap / 2 ? Math.ceil(yval / gridSnap) * gridSnap : Math.floor(yval / gridSnap) * gridSnap;
         }
         
-    
         const cvn = canvas.getBoundingClientRect();
         oldMousePos.x = event.clientX - cvn.left;
         oldMousePos.y = event.clientY - cvn.top;
         updateOptions();
+    }
+
+    imageFilter = (img, colour) => {
+        const cv = document.createElement("canvas");
+        cv.width = img.width;
+        cv.height = img.height;
+        const cvx = cv.getContext("2d");
+        document.body.appendChild(cv);
+        cvx.drawImage(img, 0, 0);
+
+        var imageData = cvx.getImageData(0, 0, cv.width, cv.height);
+        var data = imageData.data;
+
+        for (var i = 0; i <= data.length; i += 4) {
+            //red
+            data[i] = (data[i] + colour.r) / 2;
+            //green
+            data[i + 1] = (data[i + 1] + colour.g) / 2;
+            //blue
+            data[i + 2] = (data[i + 2] + colour.b) / 2;
+
+        }
+        cvx.putImageData(imageData, 0, 0);
+        const g = cv.toDataURL();
+        document.body.removeChild(cv);
+        return g;
     }
 
     //draw guide lines
@@ -1411,47 +1440,86 @@
             if (element.className == "optionnumberbox" || element.className == "optionstextbox") {
                 element.value = val;
             }
+            cookieSave();
         }
-        cookieSave();
     }
+
+    
 
     //cookie saving
     (function (){
         cookieSave = () =>{
-            var cookie = "";
-            for(var i = 0; i< menuDefs.length; i++){
-                var menu = ""
-
-                cookie += menu+";";
-            }
-            document.cookie = cookie;
+            document.cookie = "lol,hi";
         }
     })();
-    
-    //menufile expoer
+
+
     (function () {
-        var textFile;
-        document.getElementById("export").addEventListener("click", () => {
-            const string = createMenuFile();
-            const file =  makeTextFile(string);
-            const elm = document.createElement("a");
-            elm.href = file;
-            elm.download = "export.menu";
-            document.body.appendChild(elm);
-            elm.click();
-            document.body.removeChild(elm); 
-        })
+        document.onload = () =>{
+            document.getElementById("saveprogress").addEventListener("click", () => {
+                const string = createSaveText();
+                const file = makeTextFile(string);
+                const elm = document.createElement("a");
+                elm.href = file;
+                elm.download = "menuBuilderSave.txt";
+                document.body.appendChild(elm);
+                elm.click();
+                document.body.removeChild(elm);
+            })
+            document.getElementById("uploadprogress").addEventListener("click", () => {
 
-        makeTextFile = (text) => {
-            var data = new Blob([text], { type: 'text/plain' });
-            if (textFile !== null) {
-                window.URL.revokeObjectURL(textFile);
+            })
+            document.getElementById("export").addEventListener("click", () => {
+                const string = createMenuText();
+                const file = makeTextFile(string);
+                const elm = document.createElement("a");
+                elm.href = file;
+                elm.download = "export.menu";
+                document.body.appendChild(elm);
+                elm.click();
+                document.body.removeChild(elm);
+            })
+        }
+
+        createSaveText = () => {
+            var text = "";
+            for (var i = 0; i < menuDefs.length; i++) {
+                text += "menudef\n{\n";
+                for (prop in menuDefs[i].prop) {
+                    if (typeof menuDefs[i].prop[prop] == "object") {
+                        for (op2 in menuDefs[i].prop[prop]) {
+                            text += "prop:" + prop + ":" + op2 + ":" + menuDefs[i].prop[prop][op2] + "\n";
+                        }
+                    }
+                    else {
+                        text += "prop:" + prop + ":" + menuDefs[i].prop[prop] + "\n";
+                    }
+                }
+                for (op in menuDefs[i].options) {
+                    text += "options:" + op + ":" + menuDefs[i].options[op] + "\n";
+                }
+                for (var x = 0; x < menuDefs[i].itemDefList.length; x++) {
+                    text += "itemdef\n{\n";
+                    for (prop in menuDefs[i].itemDefList[x].prop) {
+                        if (typeof menuDefs[i].itemDefList[x].prop[prop] == "object") {
+                            for (op2 in menuDefs[i].itemDefList[x].prop[prop]) {
+                                text += "prop:" + prop + ":" + op2 + ":" + menuDefs[i].itemDefList[x].prop[prop][op2] + "\n";
+                            }
+                        }
+                        else {
+                            text += "prop:" + prop + ":" + menuDefs[i].itemDefList[x].prop[prop] + "\n";
+                        }
+                    }
+                    text += "}\n";
+                }
+
+                text += "}\n";
             }
-            textFile = window.URL.createObjectURL(data);
-            return textFile;
-        };
+            return text;
+        }
+        
 
-        createMenuFile = () =>{
+        createMenuText = () =>{
             var text = "";
             text += "//This file was generated by Cod4 Menu Builder - Created by Sheep Wizard\n";
             text += "//Project Github page: https://github.com/SheepWizard/COD4-MENU-BUILDER\n";
@@ -1528,5 +1596,14 @@
             text += "}\n";
             return text;
         }
+        makeTextFile = (text) => {
+            var textFile;
+            var data = new Blob([text], { type: 'text/plain' });
+            if (textFile !== null) {
+                window.URL.revokeObjectURL(textFile);
+            }
+            textFile = window.URL.createObjectURL(data);
+            return textFile;
+        };
     })(); 
 })();
