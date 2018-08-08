@@ -925,7 +925,7 @@
 
         //think this is the limit 
         if (menuDefs.length == 640) {
-            alert("You can not have not then 640 MenuDef's");
+            alert("You can not have more than 640 MenuDef's");
             return;
         }
         selectedMenuDef = menuDefs.length;
@@ -943,7 +943,7 @@
         }
         //256 max itemdef per menudef
         if (menuDefs[selectedMenuDef].itemDefList.length == 256) {
-            alert("You can not have not then 256 ItemDef's");
+            alert("You can not have more than 256 ItemDef's");
             return;
         }
         menuDefs[selectedMenuDef].itemDefList.push(new ItemDef("item_" + menuDefs[selectedMenuDef].itemDefList.length));
@@ -995,10 +995,14 @@
         for(var i = 0; i<menuDefs.length; i++){
             const tr = document.createElement("tr");
             const name = document.createElement("td");
+            var displayName = menuDefs[i].prop.name;
             if (i == selectedMenuDef){
                 name.className = "selected";
             }
-            name.appendChild(document.createTextNode(menuDefs[i].prop.name));
+            if(menuDefs[i].prop.name.length > 25) {
+                displayName = menuDefs[i].prop.name.substring(0, 25) + "...";
+            }
+            name.appendChild(document.createTextNode(displayName));
 
             const select = document.createElement("td");
             const button1 = document.createElement("button");
@@ -1108,10 +1112,15 @@
                 const def = menuDefs[selectedMenuDef].itemDefList[i];
                 const tr = document.createElement("tr");
                 const name = document.createElement("td");
+                var displayName = def.prop.name;
                 if (i == menuDefs[selectedMenuDef].selectedItemDef){
                     name.className = "selected";
                 }
-                name.appendChild(document.createTextNode(def.prop.name));
+
+                if(def.prop.name.length > 10) {
+                    displayName = def.prop.name.substring(0, 7) + "...";
+                }
+                name.appendChild(document.createTextNode(displayName));
 
                 const select = document.createElement("td");
                 const button1 = document.createElement("button");
