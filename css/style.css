@@ -133,6 +133,43 @@ button:active {
     background-color: #76DAFF;
 }
 
+/*
+notification
+*/
+
+.notification{
+    background:#ff3f3f;
+    width: 500px;
+    height: 200px;
+    position: absolute;
+    right: 2%;
+    border-radius: 25px;
+    padding: 10px;
+    display: none;
+}
+.notificationHeader{
+    text-align: center;
+    color: #4f0505;   
+    text-decoration: underline; 
+}
+.notificationText{
+    color: #111;
+    text-align: left;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+}
+.notificationExit{
+    border-radius: 5px;
+    margin: 0px;
+    color: black;
+    float: right;
+    background-color: #f91010;
+}
+.notificationExit:hover{
+    background-color: #ffbdbd;
+}
+
 /* custom attributes */
 
 .margin-10px{

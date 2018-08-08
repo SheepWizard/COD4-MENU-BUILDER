@@ -9,7 +9,7 @@
         <script src="js/memes.js"></script>
     </head>
 
-    <body id="mainbody">
+    <body>
         <div class="sidenav customslider">
             <h1 style="color: aliceblue">IN DEVELOPMENT</h1>
 
@@ -58,7 +58,7 @@
             <div class="saveload optionbackground" style="display: none">
                 <button type="button" class="btn1 margin-10px" id="saveprogress">Save progress File</button>
                 <button type="button" class="btn1" id="cookieload">Load progress from cookies</button>
-                <input type="file" id="uploadprogress" multiple>
+                <input type="file" id="uploadprogress" accept="image/*" multiple>
             </div>
 
             <div class="menudeflist">
@@ -599,6 +599,12 @@
         <div class="main">
             <canvas class="canvas" id="screencanvas"></canvas>
             <canvas class="canvas" id="canvas" ></canvas>
+
+            <div class="notification" id="notification">
+                <button type="button" class="notificationExit" id="">X</button>
+                <h1 class="notificationHeader">WARNING</h1>
+                <p1 class="notificationText" id="notificationText"></p1>
+            </div>
         </div>
 
 

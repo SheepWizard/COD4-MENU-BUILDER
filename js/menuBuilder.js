@@ -5,14 +5,13 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
-        make option blank when nothing is selected
+        right / bottom zoom is off
+        better warning notification
     */
 
     //   FEATURES TO ADD   //
     /*
-        spawn itemdef on the screen
-        add deroration warning, you want decoration on everything but buttons with action
-        save progress
+        center screen button
         import menu files
         import header files
         support definitions
@@ -29,8 +28,10 @@
     var mouseClickFlag = false;
     var gridSnap = 1;
     var buttonWarning = true;
+    var notificationsOpen = 0;
+    var decorationWanring = true;
     var guideLines = false;
-    const menuDefs = [];
+    var menuDefs = [];
     const screenSize = {
         x: 640,
         y: 480
@@ -150,15 +151,21 @@
                     updateOptions();
                     return;
                 }
-            } 
+            }
 
             if (buttonWarning && this.prop.type != 1 && (this.options.action || this.options.onFocus || this.options.leaveFocus || this.options.mouseEnter || this.options.mouseExit)){
                 if (confirm("action, onFocus, leaveFocus, mouseEnter, mouseExit, will not work if type is not equal to \"ITEM_TYPE_BUTTON\".\n")){
                     buttonWarning = false;
+                    this.prop.type = 1;
+                    updateOptions();
                 }
                 else{
-                    buttonWarning = true;
+                    buttonWarning = false;
                 }
+            }
+
+            if(this.options.action && this.prop.action != "" && this.prop.type == 1 && this.options.decoration && this.prop.decoration == 1){
+
             }
 
             if(this.options.visible){
@@ -234,8 +241,12 @@
                     y += this.prop.bordersize + 5;
                 }
                 
-                x *= zoomAmount;
-                y *= zoomAmount;
+                if (this.prop.rect.alignx != 2 && this.prop.rect.alignx != 3){
+                    x *= zoomAmount;
+                }
+                if (this.prop.rect.aligny != 2 && this.prop.rect.aligny != 3){
+                    y *= zoomAmount;
+                }
 
                 this.drawPos.x = x;
                 this.drawPos.y = y;
@@ -251,7 +262,6 @@
                     }
                     image.src = "images/default.png";
                 }
-
                 
                 //text seems to disapear when hovering over rectangle
                 //align left goes from left to right
@@ -340,9 +350,11 @@
                                     //draw image wth backcolour overlay
                                     if (this.options.backcolor) {
                                         if (this.options.border && this.options.bordercolor && this.prop.border != 0) {
-                                            ctx.drawImage(filter, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount); 
+                                            ctx.drawImage(image, x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount); 
+                                            ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
+                                            ctx.fillRect(x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                         }
-                                        else {
+                                        else{
                                             ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                                             ctx.fillStyle = "rgba(" + convertColour(this.prop.backcolor.r) + "," + convertColour(this.prop.backcolor.g) + "," + convertColour(this.prop.backcolor.b) + "," + 0.5 + ")";
                                             ctx.fillRect(x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
@@ -367,11 +379,14 @@
                                             ctx.fillRect(x, y, (this.prop.rect.width - this.prop.bordersize) * zoomAmount, (this.prop.rect.height - this.prop.bordersize) * zoomAmount);
                                         }
                                     }
-                                    else {
-                                        ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                    else {  
                                         if (this.options.forecolor) {
-                                            ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + 0.5 + ")";
-                                            ctx.fillRect(x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
+                                            const filter = new Image();
+                                            filter.src = imageFilter(image, this.prop.forecolor)
+                                            ctx.drawImage(filter, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);               
+                                        }
+                                        else{
+                                            ctx.drawImage(image, x, y, this.prop.rect.width * zoomAmount, this.prop.rect.height * zoomAmount);
                                         }
                                     }
                                 }
@@ -632,7 +647,7 @@
         })
 
         window.addEventListener("click", (event) =>{
-            if(event.target.id == "" && event.target.nodeName != "OPTION"){
+            if (event.target.id == "" && (event.target.nodeName == "BODY"/*CHROME*/ || event.target.nodeName == "HTML"/*FIREFOX*/)){
                 if(selectedMenuDef != undefined){
                     menuDefs[selectedMenuDef].selectedItemDef = undefined;
                     updateItemDefTable();
@@ -726,6 +741,30 @@
             }
         }
         updateOptions();
+    }
+
+    createNotification = (text) =>{
+        const elm = document.getElementById("notification");
+        const clone = elm.cloneNode(true);
+        clone.style.display = "block";
+        clone.style.top = 250 * notificationsOpen+"px";
+        clone.id = "notiClone";
+        elm.parentNode.appendChild(clone);
+        const button = document.getElementById("notiClone").childNodes[1];
+        button.addEventListener("click", (event) =>{
+            console.log("hii");
+        })
+        const p1 = document.getElementById("notiClone").childNodes[5];
+        p1.appendChild(document.createTextNode(text));
+        notificationsOpen++;
+        
+    }
+
+    createNotification("HELLO");
+    createNotification("GOOEBYE");
+
+    closeNotification = () =>{
+        document.getElementById("notification").style.display = "none";
     }
 
     hexToRgb = (hex) => {
@@ -1266,6 +1305,14 @@
             if (enablebox != null) {
                 enablebox.addEventListener("change", (event) => {
                     var tkn = event.target.id.split("_");
+                    if (selectedMenuDef == undefined && tkn[1] == "menu") {
+                        alert("No selected MenuDef");
+                        return;
+                    }
+                    if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item"){
+                        alert("No selected ItemDef");
+                    }
+                    
                     var def;
                     if (tkn[1] == "menu") {
                         if (selectedMenuDef != null) {
@@ -1291,6 +1338,13 @@
             if (element.className == "optioncheckbox") {
                 element.addEventListener("change", (event) => {
                     var tkn = event.target.id.split("_");
+                    if (selectedMenuDef == undefined && tkn[1] == "menu") {
+                        alert("No selected MenuDef");
+                        return;
+                    }
+                    if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
+                        alert("No selected ItemDef");
+                    }                           
                     var def;
                     if(tkn[1] == "menu"){
                         if(selectedMenuDef != null){
@@ -1317,6 +1371,14 @@
             if (element.className == "optionstextbox" || element.className == "optionnumberbox" || element.className == "optionselectbox"){
                 element.addEventListener("input", (event) =>{
                     var tkn = event.target.id.split("_");
+                    if (selectedMenuDef == undefined && tkn[1] == "menu") {
+                        alert("No selected MenuDef");
+                        return;
+                    }
+                    if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
+                        alert("No selected ItemDef");
+                    }
+                    
                     var def;
                     if (tkn[1] == "menu") {
                         if (selectedMenuDef != null) {
@@ -1486,7 +1548,6 @@
             reader.readAsText(file); 
         })
         document.getElementById("cookieload").addEventListener("click", () =>{
-            console.log(document.cookie);
             var value = "; " + document.cookie;
             var parts = value.split("; menu=");
             if (parts.length == 2){
@@ -1527,6 +1588,7 @@
 
 
         loadSave = (text) =>{
+            menuDefs = [];
             const lines = text.split("\n");
             var menudef;
             var itemdef
