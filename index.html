@@ -26,7 +26,7 @@
 
             <p1 id="helptoggle" class="cursor extrathicc">Help</p1>
             <div class="helpoptions optionbackground" style="display: none">
-                <button type="button" class="btn margin-10px" href="https://github.com/SheepWizard/COD4-MENU-BUILDER/wiki/Getting-started">Getting started</button>
+                <button type="button" class="btn margin-10px">Getting started</button>
                 <button type="button" class="btn margin-10px">Making a button</button>
                 <button type="button" class="btn margin-10px">Added a background image</button>
             </div>
@@ -51,16 +51,9 @@
                     <option value="100">100</option>
                 </select>
                 <button type="button" class="btn1" id="guidelines">Guide lines</button>
+                <button type="button" class="btn1 margin-10px" id="saveprogress">Save progress</button>
+                <button type="button" class="btn1 margin-10px" id="uploadprogress">Upload progress file</button>
             </div>
-
-            <p1 id="saveloadtoggle" class="cursor extrathicc">Save / Load</p1>
-            
-            <div class="saveload optionbackground" style="display: none">
-                <button type="button" class="btn1 margin-10px" id="saveprogress">Save progress File</button>
-                <button type="button" class="btn1" id="cookieload">Load progress from cookies</button>
-                <input type="file" id="uploadprogress" multiple>
-            </div>
-
             <div class="menudeflist">
                 <p1 id="menudeflisttoggle" class="extrathicc cursor">MenuDef list</p1>
                 <div class="menudeflistdiv optionbackground" style="display: none">
@@ -649,11 +642,6 @@
                 $(".imagelisttoggle").slideToggle(500);
             });
         });
-        $(document).ready(function () {
-                $("#saveloadtoggle").click(function () {
-                    $(".saveload").slideToggle(500);
-                });
-            });
 
             
         
