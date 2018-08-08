@@ -5,10 +5,12 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
+        make option blank when nothing is selected
     */
 
     //   FEATURES TO ADD   //
     /*
+        spawn itemdef on the screen
         add deroration warning, you want decoration on everything but buttons with action
         save progress
         import menu files
@@ -57,8 +59,8 @@
         this.prop = {
             name: itemname,
             rect: {
-                x: 100,
-                y: 100,
+                x: 0,
+                y: 0,
                 width: 100,
                 height: 100,
                 alignx: 0,
@@ -559,16 +561,23 @@
             screenSize.x = screenSize.x == 640 ? 720 : screenSize.x == 720 ? 853 : 640;
             currentScreenImage = currentScreenImage == "screen_image_1" ? "screen_image_2" : currentScreenImage == "screen_image_2" ? "screen_image_3" : "screen_image_1";
         })
-        document.getElementById("uploadbackground").addEventListener("change", (event) =>{
-            var reader = new FileReader();
-            reader.onload = () =>{
-                if (event.target.files[0] == undefined){return;}
-                backgroundImage.push(new Image());
-                backgroundImage[backgroundImage.length - 1].src = event.target.result;
-                backgroundImage[backgroundImage.length - 1].name = event.target.files[0].name;
-                updateImageTable();
+        document.getElementById("uploadbackground").addEventListener("change", (event) =>{  
+            var files = event.target.files;
+            for(var i = 0, f; f = files[i]; i++){
+                if (!f.type.match('image.*')) {
+                    continue;
+                }
+                var reader = new FileReader();
+                reader.onload = (function(file){
+                    return function (e) {
+                        backgroundImage.push(new Image());
+                        backgroundImage[backgroundImage.length - 1].src = e.target.result;
+                        backgroundImage[backgroundImage.length - 1].name = file.name;
+                        updateImageTable();
+                    }
+                })(f);    
+                reader.readAsDataURL(f); 
             }
-            reader.readAsDataURL(event.target.files[0]); 
         })
         document.getElementById("gridsnap").addEventListener("input", (event) =>{
             gridSnap = parseInt(event.target.value);
@@ -923,6 +932,7 @@
         menuDefs.push(new MenuDef("menu_"+menuDefs.length));
         updateOptions();
         updateMenuDefTable();
+        return menuDefs[menuDefs.length-1];
     }
 
     //create a new item def
@@ -940,6 +950,7 @@
         menuDefs[selectedMenuDef].selectedItemDef = menuDefs[selectedMenuDef].itemDefList.length-1;
         updateOptions();
         updateItemDefTable();
+        return menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].itemDefList.length-1];
     }
 
     updateImageTable = () =>{
@@ -1444,41 +1455,154 @@
         }
     }
 
-    
-
-    //cookie saving
-    (function (){
-        cookieSave = () =>{
-            document.cookie = "lol,hi";
-        }
-    })();
-
 
     (function () {
-        document.onload = () =>{
-            document.getElementById("saveprogress").addEventListener("click", () => {
-                const string = createSaveText();
-                const file = makeTextFile(string);
-                const elm = document.createElement("a");
-                elm.href = file;
-                elm.download = "menuBuilderSave.txt";
-                document.body.appendChild(elm);
-                elm.click();
-                document.body.removeChild(elm);
-            })
-            document.getElementById("uploadprogress").addEventListener("click", () => {
+        document.getElementById("saveprogress").addEventListener("click", () => {
+            const string = createSaveText();
+            const file = makeTextFile(string);
+            const elm = document.createElement("a");
+            elm.href = file;
+            elm.download = "menuBuilderSave.txt";
+            document.body.appendChild(elm);
+            elm.click();
+            document.body.removeChild(elm);
+        })
+        document.getElementById("uploadprogress").addEventListener("change", (event) => {
+            var reader = new FileReader();
+            const file = event.target.files[0];
+            reader.onerror = errorHandler;
+            reader.onloadend = () =>{
+                loadSave(reader.result);
+            }
+            reader.readAsText(file); 
+        })
+        document.getElementById("cookieload").addEventListener("click", () =>{
+            console.log(document.cookie);
+            var value = "; " + document.cookie;
+            var parts = value.split("; menu=");
+            if (parts.length == 2){
+                const text = parts.pop().split(";").shift();
+                console.log(decodeURIComponent(text));
+                loadSave(decodeURIComponent(text))
+            } 
+        })
+        document.getElementById("export").addEventListener("click", () => {
+            const string = createMenuText();
+            const file = makeTextFile(string);
+            const elm = document.createElement("a");
+            elm.href = file;
+            elm.download = "export.menu";
+            document.body.appendChild(elm);
+            elm.click();
+            document.body.removeChild(elm);
+        })
+        function errorHandler(event) {
+            switch (event.target.error.code) {
+                case event.target.error.NOT_FOUND_ERR:
+                    alert('File Not Found!');
+                    break;
+                case event.target.error.NOT_READABLE_ERR:
+                    alert('File is not readable');
+                    break;
+                case event.target.error.ABORT_ERR:
+                    break;
+                default:
+                    alert('An error occurred reading this file.');
+            }
+        }
+        cookieSave = () => {
+            const string = createSaveText();
+            const cookie = "menu=" + encodeURIComponent(string);
+            document.cookie = cookie+";expires=Wed, 21 Oct 2999 07: 28: 00 GMT";
+        }
 
-            })
-            document.getElementById("export").addEventListener("click", () => {
-                const string = createMenuText();
-                const file = makeTextFile(string);
-                const elm = document.createElement("a");
-                elm.href = file;
-                elm.download = "export.menu";
-                document.body.appendChild(elm);
-                elm.click();
-                document.body.removeChild(elm);
-            })
+
+        loadSave = (text) =>{
+            const lines = text.split("\n");
+            var menudef;
+            var itemdef
+            var menuOpen = false;
+            var itemDefOpen = false;
+            for(var i = 0; i< lines.length; i++){
+                if(lines[i] == "menudef" && !menuOpen){
+                    menudef = newMenuDef();
+                    menuOpen = true;
+                    continue;
+                }
+                if(menuOpen && !itemDefOpen){
+                    if(lines[i] == "itemdef"){
+                        itemdef = newItemDef();
+                        itemDefOpen = true;
+                        continue;
+                    }
+                    const tkn = lines[i].split(":");
+                    if(tkn[0] == "prop"){
+                        if(tkn.length > 2){
+                            if(typeof menudef.prop[tkn[1]] == "string"){
+                                menudef.prop[tkn[1]] = tkn[2];
+                            }
+                            else if(typeof menudef.prop[tkn[1]] == "number"){
+                                menudef.prop[tkn[1]] = parseFloat(tkn[2]);
+                            }
+                            else if (typeof menudef.prop[tkn[1]] == "object"){
+                                if(tkn.length > 3){
+                                    menudef.prop[tkn[1]][tkn[2]] = parseFloat(tkn[3]);
+                                }
+                            }
+                        }
+                    }
+                    else if(tkn[0] == "options"){
+                        if(tkn.length > 2){
+                            if(tkn[2] == "true"){
+                                menudef.options[tkn[1]] = true;
+                            }
+                            else if(tkn[2] == "false"){
+                                menudef.options[tkn[1]] = false;
+                            }
+                        }
+                    }
+                }
+                if(itemDefOpen){
+                    const tkn = lines[i].split(":");
+                    if (tkn[0] == "prop") {
+                        if (tkn.length > 2) {
+                            if (typeof itemdef.prop[tkn[1]] == "string") {
+                                itemdef.prop[tkn[1]] = tkn[2];
+                            }
+                            else if (typeof itemdef.prop[tkn[1]] == "number") {
+                                itemdef.prop[tkn[1]] = parseFloat(tkn[2]);
+                            }
+                            else if (typeof itemdef.prop[tkn[1]] == "object") {
+                                if (tkn.length > 3) {
+                                    itemdef.prop[tkn[1]][tkn[2]] = parseFloat(tkn[3]);
+                                }
+                            }
+                        }
+                    }
+                    else if (tkn[0] == "options") {
+                        if (tkn.length > 2) {
+                            if (tkn[2] == "true") {
+                                itemdef.options[tkn[1]] = true;
+                            }
+                            else if (tkn[2] == "false") {
+                                itemdef.options[tkn[1]] = false;
+                            }
+                        }
+                    }
+                }
+                
+                if(lines[i] == "}" && itemDefOpen){
+                    itemDefOpen = false;
+                    continue;
+                }
+                if(lines[i] == "}" && !itemDefOpen){
+                    menuOpen = false;
+                    continue;
+                }
+            }
+            updateMenuDefTable();
+            updateItemDefTable();
+            alert("Save file loaded. Select a MenuDef to continue working on your menu.");
         }
 
         createSaveText = () => {
