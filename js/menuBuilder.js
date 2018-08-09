@@ -583,7 +583,7 @@
                 if (!f.type.match('image.*')) {
                     continue;
                 }
-                 new FileReader();
+                var reader = new FileReader();
                 reader.onload = (function(file){
                     return function (e) {
                         backgroundImage.push(new Image());
@@ -591,7 +591,7 @@
                         backgroundImage[backgroundImage.length - 1].name = file.name;
                         updateImageTable();
                     }
-                })(f);    
+                })(f);
                 reader.readAsDataURL(f); 
             }
         })
