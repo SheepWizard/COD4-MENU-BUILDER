@@ -5,13 +5,15 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
-        right / bottom zoom is off
         better warning notification
+        save file has text box text on new lines - remove \n
+        loading from cookies seems very bugged :o
     */
 
     //   FEATURES TO ADD   //
     /*
-        center screen button
+        save warning when exiting
+        center itemdef button
         import menu files
         import header files
         support definitions
@@ -32,6 +34,7 @@
     var decorationWanring = true;
     var guideLines = false;
     var menuDefs = [];
+    var unSaved = false;
     const screenSize = {
         x: 640,
         y: 480
@@ -110,27 +113,28 @@
             rect: true,
             style: true,
             backcolor: true,
-            forecolor: true,
+            forecolor: false,
             visible: true,
             exp: false,
-            border: true,
-            bordersize: true,
-            bordercolor: true,
+            border: false,
+            bordersize: false,
+            bordercolor: false,
             type: true,
-            text: true,
-            textscale: true,
-            textstyle: true,
-            textalign: true,
-            textalignx: true,
-            textaligny: true,
+            text: false,
+            textscale: false,
+            textstyle: false,
+            textalign: false,
+            textalignx: false,
+            textaligny: false,
             background: false,
             action: false,
             onFocus: false,
             leaveFocus: false,
             mouseEnter: false,
             mouseExit: false,
-            decoration: false,
+            decoration: true,
         }
+        
 
         this.textBlink = true;
         this.textBlinkAlpha = 1;
@@ -143,7 +147,7 @@
         }
 
         this.draw = () =>{
-
+            console.log(this.options.decoration);
             if(this.options.exp){
                 if(this.prop.exp == ""){
                     alert("Menu will not compile with empty exp value!");
@@ -191,11 +195,11 @@
                 }
                 //HORIZONTAL_ALIGN_CENTER
                 if(this.prop.rect.alignx == 2){
-                    xoffset = menuCanvas.width/2;
+                    xoffset = (menu.prop.rect.width / 2) + menu.prop.rect.x + (((screenSize.x - 640) / 2) * zoomAmount);
                 }
                 //HORIZONTAL_ALIGN_RIGHT
                 if (this.prop.rect.alignx == 3) {
-                    xoffset = screen.width;
+                    xoffset = screenSize.x;
                 }
                 //HORIZONTAL_ALIGN_FULLSCREEN
                 //not finished
@@ -214,11 +218,11 @@
                 }
                 //VERTICAL_ALIGN_CENTER
                 if(this.prop.rect.aligny == 2){
-                    yoffset = menu.prop.rect.height / 2;
+                    yoffset =( menu.prop.rect.height / 2) + menu.prop.rect.y;
                 }
                 //VERTICAL_ALIGN_BOTTOM
                 if(this.prop.rect.aligny == 3){
-                    yoffset = screen.height;
+                    yoffset = screenSize.y;
                 }
                 //VERTICAL_ALIGN_FULLSCREEN
                 //not finished
@@ -241,12 +245,8 @@
                     y += this.prop.bordersize + 5;
                 }
                 
-                if (this.prop.rect.alignx != 2 && this.prop.rect.alignx != 3){
-                    x *= zoomAmount;
-                }
-                if (this.prop.rect.aligny != 2 && this.prop.rect.aligny != 3){
-                    y *= zoomAmount;
-                }
+                x *= zoomAmount;
+                y *= zoomAmount;
 
                 this.drawPos.x = x;
                 this.drawPos.y = y;
@@ -262,11 +262,6 @@
                     }
                     image.src = "images/default.png";
                 }
-                
-                //text seems to disapear when hovering over rectangle
-                //align left goes from left to right
-                //align center alignes text in center
-                //align right goes right to left
 
                 drawText = () =>{
                     if (this.options.text && this.prop.text != "") {
@@ -276,15 +271,18 @@
                         if(this.options.textscale){
                             font = this.prop.textscale*37;
                         }
+                        else{
+                            font = 0.5*37;
+                        }
                         if (this.options.border && this.options.bordercolor && this.prop.border != 0){
                             fontx += this.prop.bordersize;
                             fonty += this.prop.bordersize;
                         }
                         if(this.options.textalignx){
-                            fontx += this.prop.textalignx;
+                            fontx += (this.prop.textalignx*zoomAmount);
                         }
                         if(this.options.textaligny){
-                            fonty += this.prop.textaligny;
+                            fonty += (this.prop.textaligny*zoomAmount);
                         }
                         font *= zoomAmount;
                         ctx.font = "" + font + "px Arial";
@@ -760,8 +758,6 @@
         
     }
 
-    createNotification("HELLO");
-    createNotification("GOOEBYE");
 
     closeNotification = () =>{
         document.getElementById("notification").style.display = "none";
@@ -1156,7 +1152,7 @@
                     name.className = "selected";
                 }
 
-                if(def.prop.name.length > 10) {
+                if(def.prop.name.length > 20) {
                     displayName = def.prop.name.substring(0, 7) + "...";
                 }
                 name.appendChild(document.createTextNode(displayName));
@@ -1364,7 +1360,7 @@
                         }else{
                             def.prop[tkn[0]] = event.target.checked == true ? 1 : 0;
                         }
-                        cookieSave();
+                        unSaved = true;
                     }
                 })
             }
@@ -1408,7 +1404,7 @@
                                 def.prop[tkn[0]] = event.target.value;
                             }  
                         }
-                        cookieSave();
+                        unSaved = true;
                     }
                     //update menuDef table
                     if(event.target.id == "name_menu"){
@@ -1522,39 +1518,47 @@
             if (element.className == "optionnumberbox" || element.className == "optionstextbox") {
                 element.value = val;
             }
-            cookieSave();
+
         }
     }
 
 
     (function () {
-        document.getElementById("saveprogress").addEventListener("click", () => {
+        document.getElementById("saveprogress").addEventListener("click", () =>{
+            cookieSave();
+            unSaved = false;
+        })
+        document.getElementById("saveprogressfile").addEventListener("click", () => {
             const string = createSaveText();
             const file = makeTextFile(string);
             const elm = document.createElement("a");
             elm.href = file;
-            elm.download = "menuBuilderSave.txt";
+            elm.download = "menuBuilderSave.cmb";
             document.body.appendChild(elm);
             elm.click();
             document.body.removeChild(elm);
         })
         document.getElementById("uploadprogress").addEventListener("change", (event) => {
-            var reader = new FileReader();
-            const file = event.target.files[0];
-            reader.onerror = errorHandler;
-            reader.onloadend = () =>{
-                loadSave(reader.result);
-            }
-            reader.readAsText(file); 
+            if(confirm("Any unsaved progress will be lost")){
+                var reader = new FileReader();
+                const file = event.target.files[0];
+                reader.onerror = errorHandler;
+                reader.onloadend = () => {
+                    loadSave(reader.result);
+                }
+                reader.readAsText(file); 
+            }   
         })
         document.getElementById("cookieload").addEventListener("click", () =>{
-            var value = "; " + document.cookie;
-            var parts = value.split("; menu=");
-            if (parts.length == 2){
-                const text = parts.pop().split(";").shift();
-                console.log(decodeURIComponent(text));
-                loadSave(decodeURIComponent(text))
-            } 
+            if (confirm("Any unsaved progress will be lost")) {
+                var value = "; " + document.cookie;
+                var parts = value.split("; menu=");
+                if (parts.length == 2) {
+                    const text = parts.pop().split(";").shift();
+                    console.log(decodeURIComponent(text));
+                    loadSave(decodeURIComponent(text))
+                } 
+            }   
         })
         document.getElementById("export").addEventListener("click", () => {
             const string = createMenuText();
@@ -1673,6 +1677,7 @@
             }
             updateMenuDefTable();
             updateItemDefTable();
+            updateOptions();
             alert("Save file loaded. Select a MenuDef to continue working on your menu.");
         }
 
@@ -1704,6 +1709,9 @@
                         else {
                             text += "prop:" + prop + ":" + menuDefs[i].itemDefList[x].prop[prop] + "\n";
                         }
+                    }
+                    for (op in menuDefs[i].itemDefList[x].options) {
+                        text += "options:" + op + ":" + menuDefs[i].itemDefList[x].options[op] + "\n";
                     }
                     text += "}\n";
                 }
@@ -1756,7 +1764,7 @@
                     text += "\t\titemdef\n\t\t{\n";
                     for (var option in menuDefs[i].itemDefList[z].prop) {
                         if (menuDefs[i].itemDefList[z].options[option] == true){
-                            if(option == "decoration"){
+                            if (option == "decoration"){
                                 text += "\t\t\t" + option + "\n";
                             }
                             else if(option == "exp"){

@@ -1,0 +1,110 @@
+//This text files show how to create a button with hover effect
+
+{
+	menuDef
+	{
+		name			"menu_0"
+		rect			0 0 640 480 
+		blurworld			0
+		bordersize			10
+		bordercolor			1 0 0 1 
+		onOpen
+		{
+			
+		}
+		onClose
+		{
+			
+		}
+		onESC
+		{
+			close self;
+		}
+
+
+		itemdef
+		{
+			name			"b1"
+			rect			-163 -47 358 101 2 2 
+			style			1
+			backcolor			1 0.4 0.4 1 
+			visible			1
+			type			0
+			text			"Click me"
+			textalign			1
+			textaligny			70
+			decoration
+		}
+		itemdef
+		{
+			name			"b1_hover"
+			rect			-163 -47 358 101 2 2 
+			style			1
+			backcolor			1 0.169 0.169 1 
+			visible			0
+			type			0
+			text			"Click me"
+			textstyle			3
+			textalign			1
+			textaligny			70
+			decoration
+		}
+		itemdef
+		{
+			name			"b1_click"
+			rect			-163 -47 358 101 2 2 
+			style			0
+			backcolor			1 0.25 0.25 1 
+			visible			1
+			type			1
+			action
+			{
+					open “menu_1”; close self;
+			}
+			mouseEnter
+			{
+					hide “b1”; show “b1_hover”;
+			}
+			mouseExit
+			{
+					hide “b1_hover”; show “b1”;
+			}
+			decoration
+		}
+	}
+	menuDef
+	{
+		name			"menu_1"
+		rect			0 0 640 480 
+		blurworld			0
+		bordersize			10
+		bordercolor			1 0 0 1 
+		onOpen
+		{
+			
+		}
+		onClose
+		{
+			
+		}
+		onESC
+		{
+			close self;
+		}
+
+
+		itemdef
+		{
+			name			"item_0"
+			rect			-216 -169 445 358 2 2 
+			style			1
+			backcolor			1 0.169 0.396 1 
+			visible			1
+			type			0
+			text			"I am Menu_1"
+			textalign			1
+			textaligny			200
+			decoration
+		}
+	}
+}

@@ -132,6 +132,19 @@ button:active {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: #76DAFF;
 }
+.upload-btn-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+.upload-btn-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
 
 /*
 notification
