@@ -5,7 +5,6 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
-        better warning notification
         save file has text box text on new lines - remove \n
         loading from cookies seems very bugged :o
     */
@@ -31,9 +30,7 @@
     var backgroundImage = [];
     var mouseClickFlag = false;
     var gridSnap = 1;
-    var buttonWarning = true;
-    var notificationsOpen = 0;
-    var decorationWanring = true;
+    var notificationsOpen = [];
     var definesAndIncludes = [];
     var guideLines = false;
     var menuDefs = [];
@@ -138,7 +135,7 @@
             decoration: true,
         }
         
-
+        this.buttonWarning = true;
         this.textBlink = true;
         this.textBlinkAlpha = 1;
 
@@ -150,29 +147,24 @@
         }
 
         this.draw = () =>{
-            console.log(this.options.decoration);
             if(this.options.exp){
                 if(this.prop.exp == ""){
-                    alert("Menu will not compile with empty exp value!");
+                    createNotification("Menu error", "Menu will not compile with empty exp value!");
                     this.prop.exp = "text(\"temp text \")";
                     updateOptions();
                     return;
                 }
             }
 
-            if (buttonWarning && this.prop.type != 1 && (this.options.action || this.options.onFocus || this.options.leaveFocus || this.options.mouseEnter || this.options.mouseExit)){
-                if (confirm("action, onFocus, leaveFocus, mouseEnter, mouseExit, will not work if type is not equal to \"ITEM_TYPE_BUTTON\".\n")){
-                    buttonWarning = false;
-                    this.prop.type = 1;
-                    updateOptions();
-                }
-                else{
-                    buttonWarning = false;
-                }
+            if (this.buttonWarning && this.prop.type != 1 && (this.options.action || this.options.onFocus || this.options.leaveFocus || this.options.mouseEnter || this.options.mouseExit)){
+                createNotification("Menu warning", "action, onFocus, leaveFocus, mouseEnter, mouseExit, will not work if type is not equal to \"ITEM_TYPE_BUTTON\"");
+                this.buttonWarning = false;
+                this.prop.type = 1;
+                updateOptions();
             }
 
             if(this.options.action && this.prop.action != "" && this.prop.type == 1 && this.options.decoration && this.prop.decoration == 1){
-
+                createNotification("Menu warning", "Button action will not work with decoration enabled");
             }
 
             if(this.options.visible){
@@ -207,7 +199,7 @@
                 //HORIZONTAL_ALIGN_FULLSCREEN
                 //not finished
                 if (this.prop.rect.alignx == 4) {
-                    alert("Not currently supported");
+                    createNotification("Menu warning", "HORIZONTAL_ALIGN_FULLSCREEN is not currently supported");
                     this.prop.rect.alignx = 1;
                     updateOptions();
                 }
@@ -230,7 +222,7 @@
                 //VERTICAL_ALIGN_FULLSCREEN
                 //not finished
                 if (this.prop.rect.aligny == 4) {
-                    alert("Not currently supported");
+                    createNotification("Menu warning", "VERTICAL_ALIGN_FULLSCREEN is not currently supported");
                     this.prop.rect.aligny = 1;
                     updateOptions();
                 }
@@ -744,22 +736,41 @@
         updateOptions();
     }
 
-    createNotification = (text) =>{
+    //create a notification on top left of screen
+    createNotification = (heading ,text) =>{
         const elm = document.getElementById("notification");
-        const clone = elm.cloneNode(true);
+        const clone = elm.cloneNode(true);        
         clone.style.display = "block";
-        clone.style.top = 250 * notificationsOpen+"px";
-        clone.id = "notiClone";
+        clone.style.top = 180 * notificationsOpen.length+"px";
+        clone.id = "notification_" + notificationsOpen.length;
         elm.parentNode.appendChild(clone);
-        const button = document.getElementById("notiClone").childNodes[1];
+        const button = document.getElementById(clone.id).childNodes[1];
         button.addEventListener("click", (event) =>{
-            console.log("hii");
+            const id = event.target.parentNode.id.split("_")[1];
+            const arr = [];
+            for(var i = 0; i<notificationsOpen.length; i++){
+                if(i != id){
+                    arr.push(notificationsOpen[i]);
+                }
+            }
+            notificationsOpen = arr;
+            const parent = document.getElementById(event.target.parentNode.id);
+            parent.parentNode.removeChild(parent);
+            reDrawNotifications = (function () {
+                for (var i = 0; i < notificationsOpen.length; i++) {
+                    notificationsOpen[i].id = "notification_" + i;
+                    notificationsOpen[i].style.top = 180 * i + "px";
+                }
+            })();     
         })
-        const p1 = document.getElementById("notiClone").childNodes[5];
+        const h1 = document.getElementById(clone.id).childNodes[3];
+        h1.appendChild(document.createTextNode(heading));
+        const p1 = document.getElementById(clone.id).childNodes[5];
         p1.appendChild(document.createTextNode(text));
-        notificationsOpen++;
-        
+        notificationsOpen.push(clone);     
     }
+
+    
 
 
     closeNotification = () =>{
@@ -963,7 +974,7 @@
 
         //think this is the limit 
         if (menuDefs.length == 640) {
-            alert("You can not have more than 640 MenuDef's");
+            createNotification("Menu error", "You can not have more then 640 MenuDef's")
             return;
         }
         selectedMenuDef = menuDefs.length;
@@ -976,12 +987,13 @@
     //create a new item def
     newItemDef = () => {  
         if(menuDefs.length == 0){
-            alert("Create a menuDef first");
+            createNotification("Notification", "You must create a MenuDef first. One has been created for you.")
+            newMenuDef();
             return;
         }
         //256 max itemdef per menudef
         if (menuDefs[selectedMenuDef].itemDefList.length == 256) {
-            alert("You can not have more than 256 ItemDef's");
+            createNotification("Menu error", "You can not have more then 256 ItemDef's")
             return;
         }
         menuDefs[selectedMenuDef].itemDefList.push(new ItemDef("item_" + menuDefs[selectedMenuDef].itemDefList.length));
@@ -1305,11 +1317,11 @@
                 enablebox.addEventListener("change", (event) => {
                     var tkn = event.target.id.split("_");
                     if (selectedMenuDef == undefined && tkn[1] == "menu") {
-                        alert("No selected MenuDef");
+                        createNotification("Menu warning", "You have not selected a MenuDef");
                         return;
                     }
                     if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item"){
-                        alert("No selected ItemDef");
+                        createNotification("Menu warning", "You have not selected a ItemDef");
                     }
                     
                     var def;
@@ -1338,11 +1350,11 @@
                 element.addEventListener("change", (event) => {
                     var tkn = event.target.id.split("_");
                     if (selectedMenuDef == undefined && tkn[1] == "menu") {
-                        alert("No selected MenuDef");
+                        createNotification("Menu warning", "You have not selected a MenuDef");
                         return;
                     }
                     if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
-                        alert("No selected ItemDef");
+                        createNotification("Menu warning", "You have not selected a ItemDef");
                     }                           
                     var def;
                     if(tkn[1] == "menu"){
@@ -1371,11 +1383,11 @@
                 element.addEventListener("input", (event) =>{
                     var tkn = event.target.id.split("_");
                     if (selectedMenuDef == undefined && tkn[1] == "menu") {
-                        alert("No selected MenuDef");
+                        createNotification("Menu warning", "You have not selected a MenuDef");
                         return;
                     }
                     if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
-                        alert("No selected ItemDef");
+                        createNotification("Menu warning", "You have not selected a ItemDef");
                     }
                     
                     var def;
@@ -1584,15 +1596,15 @@
         function errorHandler(event) {
             switch (event.target.error.code) {
                 case event.target.error.NOT_FOUND_ERR:
-                    alert('File Not Found!');
+                    createNotification("File error", "File Not Found!");
                     break;
                 case event.target.error.NOT_READABLE_ERR:
-                    alert('File is not readable');
+                    createNotification("File error", "File is not readable.");
                     break;
                 case event.target.error.ABORT_ERR:
                     break;
                 default:
-                    alert('An error occurred reading this file.');
+                    createNotification("File error", "An error occurred reading this file.");
             }
         }
         cookieSave = () => {
@@ -1689,7 +1701,7 @@
             updateMenuDefTable();
             updateItemDefTable();
             updateOptions();
-            alert("Save file loaded. Select a MenuDef to continue working on your menu.");
+            createNotification("Save file loaded", "Select a MenuDef to continue working on your menu.");
         }
 
      loadMenuSave = (menuText) => {
@@ -1907,7 +1919,7 @@
             }
             updateMenuDefTable();
             updateItemDefTable();
-            alert("Custom .menu File Loaded, Select a MenuDef to continue working on your menu.");
+            createNotification("Custom .menu File Loaded", "Select a MenuDef to continue working on your menu.")
         }
 
         getDefOptions = (text, subLength) => {

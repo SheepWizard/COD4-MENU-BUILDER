@@ -152,8 +152,8 @@ notification
 
 .notification{
     background:#ff3f3f;
-    width: 500px;
-    height: 200px;
+    width: 300px;
+    height: 150px;
     position: absolute;
     right: 2%;
     border-radius: 25px;
@@ -164,13 +164,17 @@ notification
     text-align: center;
     color: #4f0505;   
     text-decoration: underline; 
+    font-family: 'Courier New', Courier, monospace;
+    text-align: left;
+    font-size: 20px;
 }
 .notificationText{
     color: #111;
     text-align: left;
     padding: 10px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 20px;
+    font-size: 18px;
+    text-indent: 0px;
 }
 .notificationExit{
     border-radius: 5px;
