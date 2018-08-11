@@ -7,19 +7,20 @@
         make snapgrid smoother
         save file has text box text on new lines - remove \n
         loading from cookies seems very bugged :o
+        .menu import onClose is being removed from trim? confused on dis.
     */
 
     //   FEATURES TO ADD   //
     /*
         save warning when exiting
         center itemdef button
-        import menu files
         import header files
-        support definitions
         default shader list
         add exec keys
-        .menu import can probs be shortened asf but later :), also they could import a .menu with editfield or slider
-        .menu import needs to add support for variables, was thinking an array for the vars eg definesAndIncludes["variablename"][0] - could be multiple so need the [0],[1] etc for color definitions
+        editfield / slider(Image of cod4 slider?)
+        .menu import add support for capital letters 
+        .menu export add support for definitions (rn exports the definitions values)
+        clean up .menu import (redundancy(clean up ifs), make 1 func to get ops?, make actions not need an if)
     */
     //  VARIABLES   //  
     var currentScreenImage = "screen_image_1";
@@ -31,7 +32,8 @@
     var mouseClickFlag = false;
     var gridSnap = 1;
     var notificationsOpen = [];
-    var definesAndIncludes = [];
+    var menuVariables = new Map();
+    var menuIncludes = [];
     var guideLines = false;
     var menuDefs = [];
     var unSaved = false;
@@ -145,6 +147,18 @@
         this.drawPos = {
             x: 0,
             y: 0
+        }
+
+        this.debugConsole = () =>{
+            var fullInfo = " === ITEM INFO === " + "\nNAME: " + this.prop.name + "\nrecX: " + this.prop.rect.x + "\nrecY: " + this.prop.rect.y + "\nrecWid: " + this.prop.rect.width + "\nrecHeight: " + this.prop.rect.height
+            + "\nrecAlignX: " + this.prop.rect.alignx + "\nrecAlignY: " + this.prop.rect.aligny + "\nstyle: " + this.prop.style + "\nbackcolR: " + this.prop.backcolor.r + "\nbackcolG: " + this.prop.backcolor.g
+            + "\nbackcolB: " + this.prop.backcolor.b + "\nbackcolA: " + this.prop.backcolor.a + "\nforecolR: " + this.prop.forecolor.r + "\nforecolG: " + this.prop.forecolor.g + "\nforecolB: " + this.prop.forecolor.b
+            + "\nforecolA: " + this.prop.forecolor.a + "\nborder: " + this.prop.border + "\nbordersize: " + this.prop.bordersize + "\nbordercolR: " + this.prop.bordercolor.r + "\nbordercolG: " + this.prop.bordercolor.g 
+            + "\nbordercolB: " + this.prop.bordercolor.b + "\nbordercolA: " + this.prop.bordercolor.a +  "\nvisible: " + this.prop.visible + "\ntype: " + this.prop.type + "\ntext: " + this.prop.text + "\ntextScale: " + this.prop.textscale
+            + "\ntextStyle: " + this.prop.textstyle + "\ntextAlign: " + this.prop.textalign + "\ntextAlignX: " + this.prop.textalignx + "\ntextAlignY: " + this.prop.textaligny + "\nbackground: " + this.prop.background
+            + "\naction: " + this.prop.action + "\onFocus: " + this.prop.onFocus + "\nleaveFocus: " + this.prop.leaveFocus + "\nmouseEnter: " + this.prop.mouseEnter + "\nmouseExit: " + this.prop.mouseExit 
+            + "\ndecoration: " + this.prop.decoration + "\n=================";
+            console.log(fullInfo);
         }
 
         this.draw = () =>{
@@ -466,6 +480,13 @@
         this.itemDefList = [];
         this.selectedItemDef;
 
+        this.debugConsole = () =>{
+            var fullInfo = " === MENU INFO === " + "\nNAME: " + this.prop.name + "\nrecX: " + this.prop.rect.x + "\nrecY: " + this.prop.rect.y + "\nrecWid: " + this.prop.rect.width + "\nrecHeight: " + this.prop.rect.height
+            + "\nblur: " + this.prop.blurworld + "\nborder: " + this.prop.border + "\nbordersize: " + this.prop.bordersize + "\nbordercolR: " + this.prop.bordercolor.r + "\nbordercolG: " + this.prop.bordercolor.g 
+            + "\nbordercolB: " + this.prop.bordercolor.b + "\nbordercolA: " + this.prop.bordercolor.a + "\nonOpen: " + this.prop.onOpen + "\nonClose: " + this.prop.onClose + "\nonESC: " + this.prop.onESC + "\n=================";
+            console.log(fullInfo);
+        }
+        
         this.draw = () =>{
             const xoffset = ((screenSize.x-640)/2)*zoomAmount;
             if(this.options.visible){
@@ -1706,88 +1727,117 @@
             updateOptions();
             createNotification("Save file loaded", "Select a MenuDef to continue working on your menu.");
         }
-
+        
         loadMenuSave = (menuText) => {
             menuDefs = [];
             const lines = menuText.split("\n");
             var menudef;
             var itemdef;
             var currentLine = "";
+            var currentLineOriginal = "";
+            var currentMenuVarOriginal = "";
+            var currentItemVarOriginal = "";
+            var currentVarName = "";
+            var currentVarTrimmed = "";
+            var varValue = "";
+            var currentMenuVar = [];
+            var currentItemVar = [];
+            var supportedMenuVars = ["name", "blurworld", "border", "bordersize"];
+            var supportedItemVars = ["name", "style", "visible", "exp", "border", "bordersize", "type", "textscale", "textstyle", "textalign", "textalignx", "textaligny", "text", "decoration"];
             var currentLineNums = undefined;
 
             for(var i = 0; i< lines.length; i++){
                currentLine = lines[i].toLowerCase().trim();
                if(currentLine === "menudef") {
                     menudef = newMenuDef();
-                   for(q = i; currentLine != "itemdef"; q++) {
-                        currentLine = lines[q].toLowerCase().trim();
-                        console.log(currentLine);
-                        if(currentLine != "itemdef") {
-                            if(currentLine.includes("name")) {
-                                if(currentLine.includes("\\\"")) {
-                                    menudef.prop["name"] = getDefOptions(currentLine, 4);
-                                } else {
-                                    menudef.prop["name"] = getDefOptions(currentLine, 4).replace(/"/g,"");
-                                }
-                            } 
-                            else if(currentLine.includes("rect")) {
+                   for(q = i+1; currentLine !== " itemdef"; q++) {
+                    if(currentLine !== " " && currentLine !== "") {
+                        currentLine = fullyTrimMenuString(lines[q]).toLowerCase();
+                    } else {
+                        currentLine = fullyTrimMenuString(lines[q]);
+                    }
+
+                        if(currentLine === " " || currentLine === "" || currentLine === "}" || currentLine === "{") {
+                            if(q === lines.length) {
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+
+                        if(currentLine !== "itemdef" && currentLine !== "" && currentLine !== " " && currentLine !== "}" && currentLine !== "{") {
+                            currentMenuVar = currentLine.split(" ");
+                            currentMenuVarOriginal = fullyTrimMenuString(lines[q]).split(" ");
+                            //need to check for certain ones because of more attributes than 1
+                            if(currentMenuVarOriginal[0] === "rect") {
                                 currentLineNums = getDefOptions(currentLine, 4).split(" ");
                                 menudef.prop["rect"]["x"] = parseFloat(currentLineNums[0]);
                                 menudef.prop["rect"]["y"]= parseFloat(currentLineNums[1]);
                                 menudef.prop["rect"]["width"] = parseFloat(currentLineNums[2]);
                                 menudef.prop["rect"]["height"] = parseFloat(currentLineNums[3]);
                                 
-                            } 
-                            else if(currentLine.includes("blurworld")) {
-                                menudef.prop["blurworld"] = getDefOptionsFloat(currentLine, 9);
+                                
                             }
-                            else if(currentLine.includes("border") && !currentLine.includes("size") && !currentLine.includes("color")) {
-                                menudef.prop["border"] = getDefOptionsFloat(currentLine, 6);
-                            }
-                            else if(currentLine.includes("bordersize")) {
-                                menudef.prop["bordersize"] = getDefOptionsFloat(currentLine, 10);
-                            }
-                            else if(currentLine.includes("bordercolor")) {
+                            else if(currentMenuVarOriginal[0] === "bordercolor") {
                                 currentLineNums = getDefOptions(currentLine, 11).split(" ");
                                 menudef.prop["bordercolor"]["r"] = parseFloat(currentLineNums[0]);
                                 menudef.prop["bordercolor"]["g"] = parseFloat(currentLineNums[1]);
                                 menudef.prop["bordercolor"]["b"] = parseFloat(currentLineNums[2]);
                                 menudef.prop["bordercolor"]["a"] = parseFloat(currentLineNums[3]);
-                            } 
-                            else if(currentLine.includes("onopen")) {
-                                menudef.prop["onOpen"] = getDefOptionsActions(currentLine, lines, q, 6);
+                                menudef.options["bordercolor"] = true;
                             }
-                            else if(currentLine.includes("onclose")) {
+                            else if(currentMenuVarOriginal[1] === "onOpen") {
+                                menudef.prop["onOpen"] = getDefOptionsActions(currentLine, lines, q, 6);
+                                menudef.options["onOpen"] = true;
+                            }
+                            else if(currentMenuVarOriginal[1] === "onClose") {
                                 //onclose just fucking disappears??? lol wut bug
                                 menudef.prop["onClose"] = getDefOptionsActions(currentLine, lines, q, 7);
+                                menudef.options["onClose"] = true;
                             }
-                            else if(currentLine.includes("onesc")) {
+                            else if(currentMenuVarOriginal[1] === "onEsc") {
                                 menudef.prop["onESC"] = getDefOptionsActions(currentLine, lines, q, 5);
+                                menudef.options["onESC"] = true;
                             }
-                            
-                            
+                            else {
+                                //check if we can actually load that menu attribute
+                                for(p = 0; p < supportedMenuVars.length; p++) {
+                                    if(currentMenuVarOriginal[0] === supportedMenuVars[p]) {
+                                        menudef.prop[currentMenuVarOriginal[0]] = undefined;
+                                        menudef.prop[currentMenuVarOriginal[0]] = getDefOp(currentMenuVar[1]);
+                                        menudef.options[currentMenuVarOriginal[0]] = true;
+                                        //menudef.debugConsole();
+                                        continue;
+                                    }
+                                }
+                            }
                         }
                    }
                } else if(currentLine === "itemdef") {
                    currentLine = "cash"; //workaround
+                   
                    itemdef = newItemDef();
-                    for(p = i+1; currentLine != "itemdef"; p++) {
-                        if(currentLine != "") {
-                            currentLine = lines[p].toLowerCase().trim();
+                    for(p = i+1; currentLine !== " itemdef"; p++) {
+                        if(currentLine !== " " && currentLine !== "") {
+                            currentLine = fullyTrimMenuString(lines[p]).toLowerCase();
+                        } else {
+                            currentLine = fullyTrimMenuString(lines[p]);
                         }
-                        if(currentLine === "") {
-                            break;
-                        }
-                        if(currentLine != "menudef") {
-                            //console.log(currentLine);
-                            if(currentLine.includes("name")) {
-                                if(currentLine.includes("\\\"")) {
-                                    itemdef.prop["name"] = getDefOptions(currentLine, 4);
-                                } else {
-                                    itemdef.prop["name"] = getDefOptions(currentLine, 4).replace(/"/g,"");
-                                }
+                        currentItemVar = currentLine.split(" ");
+                        currentItemVarOriginal = fullyTrimMenuString(lines[p]).split(" ");
+
+                        if(currentLine === " " || currentLine === "" || currentLine === "}" || currentLine === "{") {
+                            if(p === lines.length) {
+                                break;
+                            } else {
+                                continue;
                             }
-                            else if(currentLine.includes("rect")) {
+                        }
+
+                        //console.log("line: " + currentLine);
+                        //console.log("var: " + currentItemVar[0]);
+                        if(currentLine !== " menudef") {
+                            if(currentItemVar[0] === "rect") {
                                 currentLineNums = getDefOptions(currentLine, 4).split(" ");
                                 itemdef.prop["rect"]["x"] = parseFloat(currentLineNums[0]);
                                 itemdef.drawPos["x"] = itemdef.prop["rect"]["x"]
@@ -1795,17 +1845,19 @@
                                 itemdef.drawPos["y"] = itemdef.prop["rect"]["y"]
                                 itemdef.prop["rect"]["width"] = parseFloat(currentLineNums[2]);
                                 itemdef.prop["rect"]["height"] = parseFloat(currentLineNums[3]);
-                                if(currentLineNums > 3) {
+                                if(currentLineNums.length > 3) {
                                     itemdef.prop["rect"]["alignx"] = parseFloat(currentLineNums[4]);
                                     itemdef.prop["rect"]["aligny"] = parseFloat(currentLineNums[5]);
                                 }
-                                
-                            } 
-                            else if(currentLine.includes("style") && !currentLine.includes("textstyle")) {
-                                itemdef.prop["style"] = getDefOptionsFloat(currentLine, 5);
-                                itemdef.options["style"] = true;
                             }
-                            else if(currentLine.includes("backcolor")) {
+                            else if(currentItemVar[0] === "origin") {
+                                currentLineNums = getDefOptions(currentLine, 6).split(" ");
+                                itemdef.prop["rect"]["x"] += parseFloat(currentLineNums[0]);
+                                itemdef.drawPos["x"] += itemdef.prop["rect"]["x"]
+                                itemdef.prop["rect"]["y"] += parseFloat(currentLineNums[1]);
+                                itemdef.drawPos["y"] += itemdef.prop["rect"]["y"]
+                            }
+                            else if(currentItemVar[0] === "backcolor") {
                                 currentLineNums = getDefOptions(currentLine, 9).split(" ");
                                 itemdef.prop["backcolor"]["r"] = parseFloat(currentLineNums[0]);
                                 itemdef.prop["backcolor"]["g"] = parseFloat(currentLineNums[1]);
@@ -1813,7 +1865,7 @@
                                 itemdef.prop["backcolor"]["a"] = parseFloat(currentLineNums[3]);
                                 itemdef.options["backcolor"] = true;
                             }
-                            else if(currentLine.includes("forecolor")) {
+                            else if(currentItemVar[0] === "forecolor") {
                                 currentLineNums = getDefOptions(currentLine, 9).split(" ");
                                 itemdef.prop["forecolor"]["r"] = parseFloat(currentLineNums[0]);
                                 itemdef.prop["forecolor"]["g"] = parseFloat(currentLineNums[1]);
@@ -1821,27 +1873,7 @@
                                 itemdef.prop["forecolor"]["a"] = parseFloat(currentLineNums[3]);
                                 itemdef.options["forecolor"] = true;
                             }
-                            else if(currentLine.includes("visible")) {
-                                itemdef.prop["visible"] = getDefOptionsFloat(currentLine, 7);
-                                if(itemdef.prop["visible"] === 1) {
-                                    itemdef.options["visible"] = true;
-                                } else {
-                                    itemdef.options["visible"] = false;
-                                }
-                            }
-                            else if(currentLine.includes("exp")) {
-                                itemdef.prop["exp"] = getDefOptions(currentLine, 3);
-                                itemdef.options["exp"] = true;
-                            }
-                            else if(currentLine.includes("border") && !currentLine.includes("size") && !currentLine.includes("color")) {
-                                itemdef.prop["border"] = getDefOptionsFloat(currentLine, 6);
-                                itemdef.options["border"] = true;
-                            }
-                            else if(currentLine.includes("bordersize")) {
-                                itemdef.prop["bordersize"] = getDefOptionsFloat(currentLine, 10);
-                                itemdef.options["bordersize"] = true;
-                            }
-                            else if(currentLine.includes("bordercolor")) {
+                            else if(currentItemVar[0] === "bordercolor") {
                                 currentLineNums = getDefOptions(currentLine, 11).split(" ");
                                 itemdef.prop["bordercolor"]["r"] = currentLineNums[0];
                                 itemdef.prop["bordercolor"]["g"] = currentLineNums[1];
@@ -1849,92 +1881,130 @@
                                 itemdef.prop["bordercolor"]["a"] = currentLineNums[3];
                                 itemdef.options["bordercolor"] = true;
                             }
-                            else if(currentLine.includes("type")) {
-                                itemdef.prop["type"] = getDefOptionsFloat(currentLine, 4);
+                            else if(currentItemVar[0] === "mouseenter") {
+                                itemdef.prop[currentItemVarOriginal[0]] = getDefOptionsActions(currentLine, lines, p, 10);
+                                itemdef.options[currentItemVarOriginal[0]] = true;
                             }
-                            else if(currentLine.includes("textscale")) {
-                                itemdef.prop["textscale"] = getDefOptionsFloat(currentLine, 9);
-                                itemdef.options["textscale"] = true;
+                            else if(currentItemVar[0] === "mouseexit") {
+                                itemdef.prop[currentItemVarOriginal[0]] = getDefOptionsActions(currentLine, lines, p, 9);
+                                itemdef.options[currentItemVarOriginal[0]] = true;
                             }
-                            else if(currentLine.includes("textstyle")) {
-                                itemdef.prop["textstyle"] = getDefOptionsFloat(currentLine, 10);
-                                itemdef.options["textstyle"] = true;
+                            else if(currentItemVar[0] === "action") {
+                                itemdef.prop[currentItemVarOriginal[0]] = getDefOptionsActions(currentLine, lines, p, 6);
+                                itemdef.options[currentItemVarOriginal[0]] = true;
                             }
-                            else if(currentLine.includes("textalign") && !currentLine.includes("textalignx") && !currentLine.includes("textaligny")) {
-                                itemdef.prop["textalign"] = getDefOptionsFloat(currentLine, 9);
-                                itemdef.options["textalign"] = true;
+                            else if(currentItemVar[0] === "onfocus") {
+                                itemdef.prop[currentItemVarOriginal[0]] = getDefOptionsActions(currentLine, lines, p, 7);
+                                itemdef.options[currentItemVarOriginal[0]] = true;
                             }
-                            else if(currentLine.includes("textalignx")) {
-                                itemdef.prop["textalignx"] = getDefOptionsFloat(currentLine, 10);
-                                itemdef.options["textalignx"] = true;
+                            else if(currentItemVar[0] === "leavefocus") {
+                                itemdef.prop[currentItemVarOriginal[0]] = getDefOptionsActions(currentLine, lines, p, 10);
+                                itemdef.options[currentItemVarOriginal[0]] = true;
                             }
-                            else if(currentLine.includes("textaligny")) {
-                                itemdef.prop["textaligny"] = getDefOptionsFloat(currentLine, 10);
-                                itemdef.options["textaligny"] = true;
-                            }
-                            else if(currentLine.includes("text")) {
-                                if(currentLine.includes("\\\"")) {
-                                    itemdef.prop["text"] = getDefOptions(currentLine, 4);
-                                } else {
-                                    itemdef.prop["text"] = getDefOptions(currentLine, 4).replace(/"/g,"");
+                            else {
+                                //check if we can actually load that item attribute
+                                for(r = 0; r < supportedItemVars.length; r++) {
+                                    if(currentItemVar[0] === supportedItemVars[r]) {
+                                        if(currentItemVar[0] === "text") {
+                                            itemdef.prop[currentItemVar[0]] = getDefOp(currentLine.substring(5, currentLine.length));
+                                            //itemdef.debugConsole();
+                                        } else {
+                                            itemdef.prop[currentItemVarOriginal[0]] = getDefOp(currentItemVar[1]);
+                                            //itemdef.debugConsole();
+                                        }
+                                        itemdef.options[currentItemVarOriginal[0]] = true;
+                                        //console.log(currentItemVar[0] + " to: " + getDefOp(currentItemVar[1]));
+                                        continue;
+                                    }
                                 }
-                                itemdef.options["text"] = true;
                             }
-                            else if(currentLine.includes("mouseenter")) {
-                                itemdef.prop["mouseEnter"] = getDefOptionsActions(currentLine, lines, p, 10);
-                                itemdef.options["mouseEnter"] = true;
-                            }
-                            else if(currentLine.includes("mouseexit")) {
-                                itemdef.prop["mouseExit"] = getDefOptionsActions(currentLine, lines, p, 9);
-                                itemdef.options["mouseExit"] = true;
-                            }
-                            else if(currentLine.includes("action")) {
-                                itemdef.prop["action"] = getDefOptionsActions(currentLine, lines, p, 6);
-                                itemdef.options["action"] = true;
-                            }
-                            else if(currentLine.includes("onfocus")) {
-                                itemdef.prop["onFocus"] = getDefOptionsActions(currentLine, lines, p, 7);
-                                itemdef.options["onFocus"] = true;
-                            }
-                            else if(currentLine.includes("leavefocus")) {
-                                itemdef.prop["leaveFocus"] = getDefOptionsActions(currentLine, lines, p, 10);
-                                itemdef.options["leaveFocus"] = true;
-                            }
-                            else if(currentLine.includes("background") && !currentLine.includes("setbackground")) {
-                                itemdef.prop["background"] = getDefOptions(currentLine, 10);
-                                itemdef.options["background"] = true;
-                            }
-                            else if(currentLine.includes("decoration")) {
-                                console.log("Item Is A Decoration");
-                                itemdef.prop["decoration"] = 1;
-                                itemdef.options["decoration"] = true;
-                            }
+
+
                         } else {
                             break;
                             //leave loop if its a menudef
                         }
+                        
                     }
+                    
                } else if(currentLine.substring(0, 1) === "#") {
-                   if(!currentLine.includes("#include \"ui/menudef.h\"")) {
-                        definesAndIncludes[definesAndIncludes.length] = currentLine;
+
+                   if(currentLine.includes("#include") && !currentLine.includes("#include \"ui/menudef.h\"")) {
+                        menuIncludes[menuIncludes.length] = currentLine;
+                    } 
+                    else if(currentLine.includes("#define")) {
+                        currentVarTrimmed = fullyTrimMenuString(currentLine.substring(8, currentLine.length));
+                        for(j = 0; j < currentLine.length; j++) {
+                            if(currentVarTrimmed.substring(j, j + 1) === " ") {
+                                currentVarName = currentVarTrimmed.substring(0, j);
+                                varValue = currentVarTrimmed.substring(j + 1, currentLine.length);
+                                menuVariables.set(currentVarName, varValue);
+                                break;
+                            }
+                        }
+                        
                     }
                }
             }
+            
             updateMenuDefTable();
             updateItemDefTable();
             createNotification("Custom .menu File Loaded", "Select a MenuDef to continue working on your menu.")
         }
 
-        getDefOptions = (text, subLength) => {
-            return text.substring(subLength, text.length).trim();
+        fullyTrimMenuString = (text) => {
+            //this is cash lmao
+            if(typeof text !== "undefined" && text !== "" && text !== " ") {
+            text = text.trim();
+            var colons = "";
+                for(j = 0; j < text.length; j++) {
+                    if(text.includes("\t")) {
+                        text = text.replace("\t", ":");
+                        colons += ":";
+                    }
+                }
+                text = text.replace(colons, " ");
+                if(text.length <= 2) {
+                    text = text.replace(" ", "");
+                }
+            } else {
+                text = "}";
+            }
+            return text;
         }
 
-        getDefOptionsFloat = (text, subLength) => {
-            var returnThis = text.substring(subLength, text.length).trim();
-            if(/\d/.test(returnThis)) {
-                    returnThis = parseFloat(returnThis);
+        getDefOptions = (text, subLength) => {
+            var returnMe = text.substring(subLength, text.length).trim();;
+            
+            //check if they are using a variable 
+            for(var varName of menuVariables.keys()) {
+                if(text.includes(varName)) {
+                    returnMe = menuVariables.get(varName);
                 }
-            //check if they made a variable for this and input the var nums
+            }
+            return returnMe;
+        }
+
+        getDefOp = (text) => {
+            var returnThis = text;
+            if(text !== " " && text !== "" && typeof text !== "undefined") {
+                //check if they made a variable for this and input the var nums
+            for(var varName of menuVariables.keys()) {
+                if(text.includes(varName)) {
+                    returnThis = menuVariables.get(varName);
+                }
+            }
+                if(!returnThis.includes("\"")) {
+                    if(/\d/.test(returnThis)) {
+                            returnThis = parseFloat(returnThis);
+                        }
+            } else {
+                if(!returnThis.includes("\\\"")) {
+                    returnThis = returnThis.replace("\"", "");
+                    returnThis = returnThis.substring(0, returnThis.length - 1);
+                }
+            }
+            }
             return returnThis;
         }
 
@@ -1942,15 +2012,20 @@
             var line = "";
             var returnThis = "";
             var actions = [];
+            var replaceAction = ["mouseExit", "mouseEnter", "onFocus", "leaveFocus", "action", "onOpen", "onClose", "onESC"];
             
             if(lineOn.includes("}")) {
                 returnThis = lineOn.substring(subLength, lineOn.length - 1).replace(/}|{/g,"");
-            } else {
-                for(q = atPoint + 1; !line.includes("}"); q++) {
+            }
+            else {
+                for(q = atPoint; !line.includes("}"); q++) {
                     line = allLines[q];
                     returnThis += line;
                 }
                 returnThis = returnThis.replace(/}|{/g,"");
+                for(l = 0; l < replaceAction.length; l++) {
+                    returnThis = returnThis.replace(replaceAction[l],"");
+                }
             }
             
             return returnThis;
@@ -2006,9 +2081,14 @@
             text += "//This header is not used in this file but is required if you want to use common definitions\n"
             text += "#include \"ui/menudef.h\"\n\n";
             //loop through their includes and definitions for vars (incase they imported a custom .menu)
-            for(j = 0; j < definesAndIncludes.length; j++) {
-                text += definesAndIncludes[j];
+            for(j = 0; j < menuIncludes.length; j++) {
+                text += menuIncludes[j] + "\n";
             }
+
+            for(var [varName, varValue] of menuVariables) {
+                text += "#define " + varName + "\t" + varValue + "\n";
+            }
+             
             text += "{\n";
 
             for(var i = 0; i<menuDefs.length; i++){
