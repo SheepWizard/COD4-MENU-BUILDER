@@ -10,6 +10,12 @@
     </head>
 
     <body>
+        <script>
+        openInNewTab = (url) => {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+        </script>
         <div class="sidenav customslider">
             <h1 style="color: aliceblue">IN DEVELOPMENT</h1>
 
@@ -26,12 +32,12 @@
 
             <p1 id="helptoggle" class="cursor extrathicc">Help</p1>
             <div class="helpoptions optionbackground" style="display: none">
-                <button type="button" class="btn margin-10px" href="https://github.com/SheepWizard/COD4-MENU-BUILDER/wiki/Getting-started">Getting started</button>
-                <button type="button" class="btn margin-10px">Alignments</button>
-                <button type="button" class="btn margin-10px">Loading your menu in-game</button>
+                <button type="button" class="btn margin-10px" onclick="openInNewTab('https://github.com/SheepWizard/COD4-MENU-BUILDER/wiki/Getting-started')">Getting started</button>
+                <button type="button" class="btn margin-10px" >Alignments</button>
+                <button type="button" class="btn margin-10px" onclick="openInNewTab('https://github.com/SheepWizard/COD4-MENU-BUILDER/wiki/Loading-your-menu-in-game')">Loading your menu in-game</button>
                 <button type="button" class="btn margin-10px">Using expressions</button>
                 <button type="button" class="btn margin-10px">Using uiScripts</button>
-                <button type="button" class="btn margin-10px">Making a button</button>
+                <button type="button" class="btn margin-10px"onclick="openInNewTab('https://github.com/SheepWizard/COD4-MENU-BUILDER/wiki/Making-a-button-with-hover-effect')">Making a button</button>
                 <button type="button" class="btn margin-10px">Added a background image</button>
             </div>
 

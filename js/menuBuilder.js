@@ -136,6 +136,7 @@
         }
         
         this.buttonWarning = true;
+        this.decorationWarning = true;
         this.textBlink = true;
         this.textBlinkAlpha = 1;
 
@@ -163,8 +164,9 @@
                 updateOptions();
             }
 
-            if(this.options.action && this.prop.action != "" && this.prop.type == 1 && this.options.decoration && this.prop.decoration == 1){
+            if (this.decorationWarning && this.options.action && this.prop.action != "" && this.prop.type == 1 && this.options.decoration && this.prop.decoration == 1){
                 createNotification("Menu warning", "Button action will not work with decoration enabled");
+                this.decorationWarning = false;
             }
 
             if(this.options.visible){
@@ -756,12 +758,12 @@
             notificationsOpen = arr;
             const parent = document.getElementById(event.target.parentNode.id);
             parent.parentNode.removeChild(parent);
-            reDrawNotifications = (function () {
-                for (var i = 0; i < notificationsOpen.length; i++) {
+            reDrawNotifications = (function (id) {
+                for (var i = id; i < notificationsOpen.length; i++) {
                     notificationsOpen[i].id = "notification_" + i;
                     notificationsOpen[i].style.top = 180 * i + "px";
                 }
-            })();     
+            })(id);     
         })
         const h1 = document.getElementById(clone.id).childNodes[3];
         h1.appendChild(document.createTextNode(heading));
@@ -769,9 +771,6 @@
         p1.appendChild(document.createTextNode(text));
         notificationsOpen.push(clone);     
     }
-
-    
-
 
     closeNotification = () =>{
         document.getElementById("notification").style.display = "none";
@@ -859,6 +858,8 @@
             alert("This website may not work properly on your browser. Please use the latest version of chrome or firefox instead.");
         }
     }
+
+    
 
     //draw border function
     drawBorder = (x,y, width, height, bsize, type, colour) =>{
@@ -1552,6 +1553,7 @@
             document.body.appendChild(elm);
             elm.click();
             document.body.removeChild(elm);
+            createNotification("Progress file downloaded", "You can upload this progress file to continue working on your project.")
         })
         document.getElementById("uploadprogress").addEventListener("change", (event) => {
             if(confirm("Any unsaved progress will be lost")){
@@ -1592,6 +1594,7 @@
             document.body.appendChild(elm);
             elm.click();
             document.body.removeChild(elm);
+            createNotification("Menu file exported", "You can follow the guide in the help section to learn how to load the menu in-game.");
         })
         function errorHandler(event) {
             switch (event.target.error.code) {
@@ -1704,7 +1707,7 @@
             createNotification("Save file loaded", "Select a MenuDef to continue working on your menu.");
         }
 
-     loadMenuSave = (menuText) => {
+        loadMenuSave = (menuText) => {
             menuDefs = [];
             const lines = menuText.split("\n");
             var menudef;
