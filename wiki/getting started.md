@@ -4,6 +4,10 @@ This first tutorial will help you learn MenuBuilder controls.
 Both MenuDef options and ItemDef options have a check box on the left to disable/enable the option and then a area on the right the set the option value.
 Options that are colours have a box underneath which will open a colour picker to help you choose the correct colour.
 
+You can visit this website for more menu syntax (Some information on this page will not work in cod4)
+
+https://www.icculus.org/homepages/phaethon/q3tamenu/q3tamenu.html#toc1
+
 ## Creating a menu
 A menu is made from a MenuDef and is populated with ItemDef's. A MenuDef is like a screen within your game that displays ItemDef's.  **A itemDef can be displayed outside of the MenuDef but actions will not work e.g. buttons.**
 ### MenuDef

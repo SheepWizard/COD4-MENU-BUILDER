@@ -46,17 +46,23 @@ This ItemDef will show when you hover the mouse over it so change it's appearanc
 ```
 ```
 Make sure your 3 ItemDef's are in this order
+```
+```
 | Order |
 | :--: |
 |b1|
 |b1_hover|
 |b1_click|
+```
+```
 
 ![](https://i.imgur.com/HD5luG7.png)
 
 You can now export your menu and load it into your mod.
 
-![](https://i.gyazo.com/d77f7e3ca49ee46f1f301d68d82e7c65.gif)
+![](https://image.ibb.co/nxkcfp/d77f7e3ca49ee46f1f301d68d82e7c65.gif)
+
 
 You can download the example files here:
-https://github.com/SheepWizard/COD4-MENU-BUILDER/tree/master/examples/Hover%20Button
+
+ [https://github.com/SheepWizard/COD4-MENU-BUILDER/tree/master/examples/Hover%20Button](https://github.com/SheepWizard/COD4-MENU-BUILDER/tree/master/examples/Hover%20Button)
