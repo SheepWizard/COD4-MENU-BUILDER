@@ -1,6 +1,6 @@
 # ItemDef alignments
 
-It is very important to select the correct alignments when making an ItemDef. You want to select the correct alignment so that the ItemDef is positioned correctly in very aspect ratio.
+It is very important to select the correct alignments when making an ItemDef. You want to select the correct alignment so that the ItemDef is positioned correctly in your aspect ratio.
 
 You can set the alignment in the ItemDef rect settings:
 ![](https://i.imgur.com/3COI6kX.png)
