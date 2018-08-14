@@ -9,6 +9,7 @@ Here is a list of script actions you can use **(some of these I have not tested 
 ```
 | Action | Syntax |  Example | Description|
 |--|--|--|--|
+|scriptMenuResponse|scriptMenuResponse [string]|scriptMenuResponse "select"|Send a scriptMenuResponse that can be caught in a .gsc/.gsx file
 | show | show [itemDef/menuDef name] | show "button_1";| Shows a itemDef or menuDef
 |hide|hide [itemDef/menuDef name] | hide "button_1";|Hides a itemDef or menuDef
 |open|open [menuDef name]| open "welcome_menu";| Opens a menuDef
