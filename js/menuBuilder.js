@@ -41,6 +41,7 @@
         x: 640,
         y: 480
     }
+
     //720x480 16:10
     //853x480 16:9
     //640*480 4:3
@@ -1561,12 +1562,14 @@
 
 
     (function () {
-        document.getElementById("saveprogress").addEventListener("click", () =>{
-            cookieSave();
-            unSaved = false;
-        })
+        // document.getElementById("saveprogress").addEventListener("click", () =>{
+        //     cookieSave();
+        //     unSaved = false;
+        // })
         document.getElementById("saveprogressfile").addEventListener("click", () => {
+            console.log("click");
             const string = createSaveText();
+            
             const file = makeTextFile(string);
             const elm = document.createElement("a");
             elm.href = file;
@@ -1595,17 +1598,17 @@
                 reader.readAsText(file);
                 }     
         })
-        document.getElementById("cookieload").addEventListener("click", () =>{
-            if (confirm("Any unsaved progress will be lost")) {
-                var value = "; " + document.cookie;
-                var parts = value.split("; menu=");
-                if (parts.length == 2) {
-                    const text = parts.pop().split(";").shift();
-                    console.log(decodeURIComponent(text));
-                    loadSave(decodeURIComponent(text))
-                } 
-            }   
-        })
+        // document.getElementById("cookieload").addEventListener("click", () =>{
+        //     if (confirm("Any unsaved progress will be lost")) {
+        //         var value = "; " + document.cookie;
+        //         var parts = value.split("; menu=");
+        //         if (parts.length == 2) {
+        //             const text = parts.pop().split(";").shift();
+        //             console.log(decodeURIComponent(text));
+        //             loadSave(decodeURIComponent(text))
+        //         } 
+        //     }   
+        // })
         document.getElementById("export").addEventListener("click", () => {
             const string = createMenuText();
             const file = makeTextFile(string);
@@ -2042,7 +2045,7 @@
                             text += "prop:" + prop + ":" + op2 + ":" + menuDefs[i].prop[prop][op2] + "\n";
                         }
                     }
-                    else {
+                    else { 
                         text += "prop:" + prop + ":" + menuDefs[i].prop[prop] + "\n";
                     }
                 }
