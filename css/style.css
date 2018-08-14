@@ -27,6 +27,56 @@ p1{
     background-color: rgb(36, 35, 35);
 }
 
+.snapgrid{
+    width: 50px;
+}
+
+textarea:disabled{
+    background: #919191;
+}
+input:disabled{
+    background: #919191;
+}
+select:disabled{
+    background: #919191;
+}
+
+textarea{
+    outline: none;
+    border: none;
+    border-radius:3px;
+    width: 300px;
+    height: 30px;
+    vertical-align: middle;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 30px;
+    text-indent: 5px;
+}
+input[type="number"]{
+    width: 50px;
+    height: 30px;
+    text-align: center;
+}
+input{
+    outline: none;
+    border: none;
+    border-radius:3px;
+    font-family: 'Courier New', Courier, monospace;
+    margin-top: 2px;
+}
+select{
+    outline: none;
+    border: none;
+    border-radius:3px;
+    font-family: 'Courier New', Courier, monospace;
+    width: 300px;
+    margin-top: 2px;
+    height: 30px;
+    text-align: center;
+}
+
+
+
 .optiontext{
     color: #fff;
 }
