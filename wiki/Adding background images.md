@@ -5,7 +5,7 @@ This tutorial will show you how to add a background image to your ItemDef.
  - You first need to import your image(s) into menu builder. Do this by opening the images menu and pressing 'Upload images'. 
 ![](https://i.imgur.com/Mj7ubj9.png)
 
- - Next create a new ItemDef, making sure it has these options.
+ - Next create a new ItemDef, make sure it has these options.
   ```
   ```
 |Option  | Value |

@@ -4,7 +4,7 @@ This is a tutorial on how to load your menu into Call of Duty 4.
 http://wiki.modsrepository.com/index.php/Call_of_Duty_4:_Modding_Tutorial
 https://docs.cod4x.me/modding/scriptingguide/quickstart.html
 
-Once you have finish designing you menu click the 'Export menu' button in builder options.
+Once you have finished designing your menu click the 'Export menu' button in builder options.
 (Before you export make sure your menu works on all screen ratios).
 
 You will now have a export.menu, you can rename it if you like.
@@ -30,17 +30,17 @@ Now open the .gsc/.gsx file where you want to load your menu. You will need to p
     precacheMenu("homemenu");//name of my menu file
     precacheMenu("home");//name of my MenuDef
     
-  To open the you will using 
+  To open your menu within gsc use this line
   
 
-    self openMenu(MenuDef name);//self is a player entity
+    self openMenu(MenuDef name); //self is a player entity
 In my .gsc I will do:
 
     self openMenu("home");
 
 ![](https://i.imgur.com/HTraK78.png)
 
-Here is a example script of opening a menu when the players use button is pressed.
+Here is an example script of opening a menu when the players use button is pressed.
 
 ```c
 init()

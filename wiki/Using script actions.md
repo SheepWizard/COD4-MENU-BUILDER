@@ -14,8 +14,8 @@ Here is a list of script actions you can use **(some of these I have not tested 
 |hide|hide [itemDef/menuDef name] | hide "button_1";|Hides a itemDef or menuDef
 |open|open [menuDef name]| open "welcome_menu";| Opens a menuDef
 |close| close[menuDef name]|hide "team_select";| Closes a menuDef
-|setbackground|setbackground [background name]| setbackground "banner";| Sets a background image for a itemDef
-|setitemcolor|setitemcolor [itemDef name] "backcolor" [color]| setitemcolor "item_0" "backcolor" 1 0 0 1;| Sets the backcolor for a ItemDef
+|setbackground|setbackground [background name]| setbackground "banner";| Sets a background image for an itemDef
+|setitemcolor|setitemcolor [itemDef name] "backcolor" [color]| setitemcolor "item_0" "backcolor" 1 0 0 1;| Sets the backcolor for an ItemDef
 |exec|exec [string] |exec "com_maxfps 250"; |Execute a string as a console command. Note this is NOT the same "exec" to load a .cfg file.
 |setLocalVarInt| setLocalVarInt [variable] [value]|setLocalVarInt item_1 5; | Sets a local varibale int inside the menu. See expressions wiki for more information.
 |setLocalVarString| see above||
