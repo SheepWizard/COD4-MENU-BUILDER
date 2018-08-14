@@ -5,14 +5,12 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
-        save file has text box text on new lines - remove \n
         loading from cookies seems very bugged :o
         .menu import onClose is being removed from trim? confused on dis.
     */
 
     //   FEATURES TO ADD   //
     /*
-        save warning when exiting
         center itemdef button
         import header files
         default shader list
@@ -671,6 +669,18 @@
                 }
             }
         })
+
+        window.onbeforeunload = (e) => {
+            if(!unSaved){return undefined};
+            e = e || window.event;
+
+            // For IE and Firefox prior to version 4
+            if (e) {
+                e.returnValue = 'Sure?';
+            }
+            // For Safari
+            return 'Sure?';
+        };
         
         menuCanvas.addEventListener("mousedown", (event) => {
             const cvn = canvas.getBoundingClientRect();
@@ -1412,7 +1422,7 @@
                     if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
                         createNotification("Menu warning", "You have not selected a ItemDef");
                     }
-                    
+                    unSaved = true;
                     var def;
                     if (tkn[1] == "menu") {
                         if (selectedMenuDef != null) {
@@ -1432,6 +1442,7 @@
                                 def.prop[id2][tkn[0]] = parseFloat(event.target.value);
                             }
                             else{
+                                
                                 def.prop[id2][tkn[0]] = event.target.value;
                             }  
                         } else {
@@ -1439,10 +1450,13 @@
                                 def.prop[tkn[0]] = parseFloat(event.target.value);
                             }
                             else{
-                                def.prop[tkn[0]] = event.target.value;
+                                //stop new line in text area
+                                var elm = document.getElementById(event.target.id)
+                                elm.value = elm.value.replace(/(\r\n|\n|\r)/gm, "");
+                                def.prop[tkn[0]] = elm.value;
                             }  
                         }
-                        unSaved = true;
+                        
                     }
                     //update menuDef table
                     if(event.target.id == "name_menu"){
@@ -1562,14 +1576,13 @@
 
 
     (function () {
-        // document.getElementById("saveprogress").addEventListener("click", () =>{
-        //     cookieSave();
-        //     unSaved = false;
-        // })
-        document.getElementById("saveprogressfile").addEventListener("click", () => {
-            console.log("click");
+        saveProgress = () =>{
+            cookieSave();
+            unSaved = false;
+        }
+        saveProgressFile = () =>{
             const string = createSaveText();
-            
+
             const file = makeTextFile(string);
             const elm = document.createElement("a");
             elm.href = file;
@@ -1577,8 +1590,9 @@
             document.body.appendChild(elm);
             elm.click();
             document.body.removeChild(elm);
-            createNotification("Progress file downloaded", "You can upload this progress file to continue working on your project.")
-        })
+            createNotification("Progress file downloaded", "You can upload this progress file to continue working on your project.");
+            unSaved = false;
+        }
         document.getElementById("uploadprogress").addEventListener("change", (event) => {
             if(confirm("Any unsaved progress will be lost")){
                 var reader = new FileReader();
@@ -1595,20 +1609,20 @@
                         loadSave(reader.result);
                     }
                 }
-                reader.readAsText(file);
+                    reader.readAsText(file);
                 }     
         })
-        // document.getElementById("cookieload").addEventListener("click", () =>{
-        //     if (confirm("Any unsaved progress will be lost")) {
-        //         var value = "; " + document.cookie;
-        //         var parts = value.split("; menu=");
-        //         if (parts.length == 2) {
-        //             const text = parts.pop().split(";").shift();
-        //             console.log(decodeURIComponent(text));
-        //             loadSave(decodeURIComponent(text))
-        //         } 
-        //     }   
-        // })
+        cookieLoad = () =>{
+            if (confirm("Any unsaved progress will be lost")) {
+                var value = "; " + document.cookie;
+                var parts = value.split("; menu=");
+                if (parts.length == 2) {
+                    const text = parts.pop().split(";").shift();
+                    console.log(decodeURIComponent(text));
+                    loadSave(decodeURIComponent(text))
+                } 
+            } 
+        }
         document.getElementById("export").addEventListener("click", () => {
             const string = createMenuText();
             const file = makeTextFile(string);

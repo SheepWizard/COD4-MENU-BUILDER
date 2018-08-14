@@ -30,7 +30,6 @@ p1{
 .snapgrid{
     width: 50px;
 }
-
 textarea:disabled{
     background: #919191;
 }
@@ -51,6 +50,8 @@ textarea{
     font-family: 'Courier New', Courier, monospace;
     line-height: 30px;
     text-indent: 5px;
+    overflow-x: hidden;
+    white-space: nowrap;
 }
 input[type="number"]{
     width: 50px;
