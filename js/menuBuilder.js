@@ -7,6 +7,7 @@
         make snapgrid smoother
         loading from cookies seems very bugged :o
         .menu import onClose is being removed from trim? confused on dis.
+        add menudef border size to itemdef x/y
     */
 
     //   FEATURES TO ADD   //
@@ -251,8 +252,8 @@
                     y = this.prop.rect.y + yoffset;
                 }
                 if (this.options.border && this.options.bordercolor && this.prop.border != 0){
-                    x += this.prop.bordersize + 5;
-                    y += this.prop.bordersize + 5;
+                    x += this.prop.bordersize;
+                    y += this.prop.bordersize;
                 }
                 
                 x *= zoomAmount;
