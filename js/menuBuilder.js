@@ -1419,6 +1419,9 @@
                         createNotification("Menu warning", "You have not selected a MenuDef");
                         return;
                     }
+                    if (selectedMenuDef == undefined && tkn[1] == "item"){
+                        createNotification("Menu warning", "You have not created a MenuDef");
+                    }
                     if (menuDefs[selectedMenuDef].selectedItemDef == undefined && tkn[1] == "item") {
                         createNotification("Menu warning", "You have not selected a ItemDef");
                     }
