@@ -60,7 +60,7 @@ Make sure your 3 ItemDef's are in this order
 
 You can now export your menu and load it into your mod.
 
-![](https://image.ibb.co/nxkcfp/d77f7e3ca49ee46f1f301d68d82e7c65.gif)
+![](https://i.gyazo.com/53e615cac21333170481b038943c80a3.gif)
 
 
 You can download the example files here:

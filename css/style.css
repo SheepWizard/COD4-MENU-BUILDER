@@ -13,9 +13,21 @@ p1{
     color: #fff;
 }
 
+.title{
+    margin:20px;
+    width: 400px;
+}
+
 /*menudef and itemdef options*/  
 .optionstextbox{
     resize: none;
+}
+
+a:visited{
+    color: rgb(64, 204, 255);
+}
+a{
+    color: #76DAFF;
 }
 
 .optionbackground{
@@ -257,6 +269,6 @@ body{
 .extrathicc{
     font-size: 20px;
     font-family: sans-serif;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #76DAFF;
     margin-right: 5px;
 }
