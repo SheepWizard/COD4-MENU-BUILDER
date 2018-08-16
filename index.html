@@ -66,8 +66,8 @@
             <p1 id="saveloadtoggle" class="cursor extrathicc">Save / Load</p1>
             
             <div class="saveload optionbackground" style="display: none">
-                <!-- <button type="button" class="btn1 margin-10px" onclick="saveProgress()">Save progress</button>
-                <button type="button" class="btn1" onclick="cookieLoad">Load progress </button> -->
+                <button type="button" class="btn1 margin-10px" onclick="localStorageSave()">Save progress</button>
+                <button type="button" class="btn1" onclick="localStorageLoad()">Load progress </button>
                 <button type="button" class="btn1 margin-10px" onclick="saveProgressFile()">Save progress File</button>
                 <div class="upload-btn-wrapper">
                     <button type="button" class="btn1 margin-10px" id="">Upload progress File</button>
@@ -189,6 +189,7 @@
                         </td>
                     </tr>
                     <tr>
+                        
                         <td>
                             <input type="checkbox" class="enabledcheckbox" id="onOpen_menu_enable">
                         </td>
@@ -241,6 +242,7 @@
 
             <div class="itemdefoptions optionbackground" id="itemdefoptions">
                 <button type="button"  class="btn1" id="newitemdef">New itemDef</button>
+                <button type="button" class="btn1" id="finditemdef">Find</button>
                 <table id="itemdefoptiontable">
                     <tr>
                         <td><input type="checkbox" class="enabledcheckbox" id="name_item_enable"></td>

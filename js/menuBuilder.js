@@ -5,9 +5,7 @@
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
         make snapgrid smoother
-        loading from cookies seems very bugged :o
         .menu import onClose is being removed from trim? confused on dis.
-        add menudef border size to itemdef x/y
     */
 
     //   FEATURES TO ADD   //
@@ -141,6 +139,7 @@
         this.decorationWarning = true;
         this.textBlink = true;
         this.textBlinkAlpha = 1;
+        this.find = false;
 
         this.menuDefIndex;
 
@@ -187,8 +186,9 @@
                 if(!this.prop.visible){
                     return;
                 }
-            }
+            } 
             else {return;}
+
             const menu = menuDefs[selectedMenuDef];
             if (this.options.rect) {
                 var xoffset = 0;
@@ -279,6 +279,11 @@
                         var font = 37;
                         var fontx = x;
                         var fonty = y - 10;
+
+                        var text = this.prop.text;
+                        const re = /([^\\\w])?\\n/g;
+                        text = text.replace(re, "\n");
+                        const textLines = text.split("\n");
                         if(this.options.textscale){
                             font = this.prop.textscale*37;
                         }
@@ -297,6 +302,7 @@
                         }
                         font *= zoomAmount;
                         ctx.font = "" + font + "px Arial";
+                        const lineHeight =  font;
 
                         if(this.options.textalign){
                             if(this.prop.textalign == 0){
@@ -314,7 +320,7 @@
 
                         if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 3){
                             ctx.fillStyle = "rgba(0,0,0,"+this.prop.forecolor.a+")";
-                            ctx.fillText(this.prop.text, fontx+1, fonty+1);
+                            ctx.fillText(text, fontx+1, fonty+1);
                         }
                         if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 1) {
                             //blinking could be improved
@@ -333,7 +339,7 @@
                                 this.textBlinkAlpha -= 0.01;
                             }
                             ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + this.textBlinkAlpha + ")";
-                            ctx.fillText(this.prop.text, fontx, fonty);
+                            ctx.fillText(text, fontx, fonty);
                             return;
                         }
                         else {
@@ -343,7 +349,10 @@
                             else {
                                 ctx.fillStyle = "rgba(255,255,255,1)";
                             }
-                            ctx.fillText(this.prop.text, fontx, fonty);
+                            for (var i = 0; i < textLines.length; i++){
+                                ctx.fillText(textLines[i], fontx, fonty + (lineHeight*i));
+                            }
+                            
                         }
                         
                         
@@ -434,6 +443,14 @@
                     }
                 }
                 drawText();
+                drawLine = () =>{
+                    ctx.beginPath();
+                    ctx.moveTo((screenSize.x/2)*zoomAmount, (screenSize.y/2)*zoomAmount);
+                    ctx.lineTo(this.drawPos.x, this.drawPos.y);
+                    ctx.stroke();
+                }
+                if (this.find) { drawLine();}
+                
             }
             else { return; }
             //if style = 1 and there is a background, draw background but wiht backcolour overlayed
@@ -575,6 +592,12 @@
         document.getElementById("imagetoggle").addEventListener("click", () => {
             showScreenImage = !showScreenImage;
         })
+        //center itemDef
+        document.getElementById("finditemdef").addEventListener("click", () =>{
+            if(selectedMenuDef == undefined){return;}
+            if(menuDefs[selectedMenuDef].selectedItemDef == undefined){return;}
+            menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].find = !menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].find;
+        })
         //toggle canvas outlines
         document.getElementById("outlinetoggle").addEventListener("click", () => {
             if (toggleOutline) {
@@ -588,10 +611,12 @@
             toggleOutline = !toggleOutline;
 
         })
+        //toggle screen ratio
         document.getElementById("screenratio").addEventListener("click", () => {
             screenSize.x = screenSize.x == 640 ? 720 : screenSize.x == 720 ? 853 : 640;
             currentScreenImage = currentScreenImage == "screen_image_1" ? "screen_image_2" : currentScreenImage == "screen_image_2" ? "screen_image_3" : "screen_image_1";
         })
+        //upload images
         document.getElementById("uploadbackground").addEventListener("change", (event) =>{  
             var files = event.target.files;
             for(var i = 0, f; f = files[i]; i++){
@@ -610,9 +635,11 @@
                 reader.readAsDataURL(f); 
             }
         })
+        //change snapgrid
         document.getElementById("gridsnap").addEventListener("input", (event) =>{
             gridSnap = parseInt(event.target.value);
         })
+        //get key press
         document.addEventListener("keydown", (e) =>{
             if(selectedMenuDef == undefined){return;}
             if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
@@ -658,10 +685,12 @@
             }
             
         })
+        //toggle drawing guide lines
         document.getElementById("guidelines").addEventListener("click", () =>{
             guideLines = !guideLines
         })
 
+        //get click event for deselect
         window.addEventListener("click", (event) =>{
             if (event.target.id == "" && (event.target.nodeName == "BODY"/*CHROME*/ || event.target.nodeName == "HTML"/*FIREFOX*/)){
                 if(selectedMenuDef != undefined){
@@ -671,18 +700,6 @@
             }
         })
 
-        window.onbeforeunload = (e) => {
-            if(!unSaved){return undefined};
-            e = e || window.event;
-
-            // For IE and Firefox prior to version 4
-            if (e) {
-                e.returnValue = 'Sure?';
-            }
-            // For Safari
-            return 'Sure?';
-        };
-        
         menuCanvas.addEventListener("mousedown", (event) => {
             const cvn = canvas.getBoundingClientRect();
             oldMousePos.x = event.clientX - cvn.left;
@@ -703,7 +720,7 @@
             }
             
         })
-
+        //event listener for colour pickers
         const colourPickers = document.querySelectorAll("input[type='color']")
         for (var i = 0; i < colourPickers.length; i++){
             colourPickers[i].addEventListener("change", (e) => {
@@ -712,6 +729,18 @@
         }
 
     }
+    //check when tab is closed
+    window.onbeforeunload = (e) => {
+        if (!unSaved) { return undefined };
+        e = e || window.event;
+
+        // For IE and Firefox prior to version 4
+        if (e) {
+            e.returnValue = 'Sure?';
+        }
+        // For Safari
+        return 'Sure?';
+    };
 
     //  FUNCTIONS   //
 
@@ -776,7 +805,7 @@
         const elm = document.getElementById("notification");
         const clone = elm.cloneNode(true);        
         clone.style.display = "block";
-        clone.style.top = 180 * notificationsOpen.length+"px";
+        clone.style.top = 130 * notificationsOpen.length+"px";
         clone.id = "notification_" + notificationsOpen.length;
         elm.parentNode.appendChild(clone);
         const button = document.getElementById(clone.id).childNodes[1];
@@ -794,7 +823,7 @@
             reDrawNotifications = (function (id) {
                 for (var i = id; i < notificationsOpen.length; i++) {
                     notificationsOpen[i].id = "notification_" + i;
-                    notificationsOpen[i].style.top = 180 * i + "px";
+                    notificationsOpen[i].style.top = 130 * i + "px";
                 }
             })(id);     
         })
@@ -1581,10 +1610,6 @@
 
 
     (function () {
-        saveProgress = () =>{
-            cookieSave();
-            unSaved = false;
-        }
         saveProgressFile = () =>{
             const string = createSaveText();
 
@@ -1617,17 +1642,7 @@
                     reader.readAsText(file);
                 }     
         })
-        cookieLoad = () =>{
-            if (confirm("Any unsaved progress will be lost")) {
-                var value = "; " + document.cookie;
-                var parts = value.split("; menu=");
-                if (parts.length == 2) {
-                    const text = parts.pop().split(";").shift();
-                    console.log(decodeURIComponent(text));
-                    loadSave(decodeURIComponent(text))
-                } 
-            } 
-        }
+        
         document.getElementById("export").addEventListener("click", () => {
             const string = createMenuText();
             const file = makeTextFile(string);
@@ -1653,10 +1668,19 @@
                     createNotification("File error", "An error occurred reading this file.");
             }
         }
-        cookieSave = () => {
+        localStorageSave = () => {
             const string = createSaveText();
-            const cookie = "menu=" + encodeURIComponent(string);
-            document.cookie = cookie+";expires=Wed, 21 Oct 2999 07: 28: 00 GMT";
+            localStorage.setItem("menu", string);
+            unSaved = false;
+            createNotification("Progress saved", "Progress saved. Select 'Load progress' to reload your menu.");
+        }
+        localStorageLoad = () => {
+            if (confirm("Any unsaved progress will be lost")) {
+                const save = localStorage.getItem("menu");
+                if(save != undefined){
+                    loadSave(save);
+                }
+            }
         }
 
 
