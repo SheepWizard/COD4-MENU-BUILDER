@@ -320,7 +320,9 @@
 
                         if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 3){
                             ctx.fillStyle = "rgba(0,0,0,"+this.prop.forecolor.a+")";
-                            ctx.fillText(text, fontx+1, fonty+1);
+                            for (var i = 0; i < textLines.length; i++) {
+                                ctx.fillText(textLines[i], fontx+1, fonty + (lineHeight * i)+1);
+                            }
                         }
                         if (this.options.textstyle && this.options.forecolor && this.prop.textstyle == 1) {
                             //blinking could be improved
@@ -339,7 +341,9 @@
                                 this.textBlinkAlpha -= 0.01;
                             }
                             ctx.fillStyle = "rgba(" + convertColour(this.prop.forecolor.r) + "," + convertColour(this.prop.forecolor.g) + "," + convertColour(this.prop.forecolor.b) + "," + this.textBlinkAlpha + ")";
-                            ctx.fillText(text, fontx, fonty);
+                            for (var i = 0; i < textLines.length; i++) {
+                                ctx.fillText(textLines[i], fontx, fonty + (lineHeight * i));
+                            }
                             return;
                         }
                         else {
