@@ -6,11 +6,15 @@
         add filter to rect drawing
         make snapgrid smoother
         .menu import onClose is being removed from trim? confused on dis.
+        no save warning when you move a itemDef
+        when you remove text gives NaN error
+        text font size is a bit off
+        text that contains : wont load properly
     */
 
     //   FEATURES TO ADD   //
     /*
-        center itemdef button
+        convert save/load to json
         import header files
         default shader list
         add exec keys
@@ -288,7 +292,7 @@
                             font = this.prop.textscale*37;
                         }
                         else{
-                            font = 0.5*37;
+                            font = 0.55*37;
                         }
                         if (this.options.border && this.options.bordercolor && this.prop.border != 0){
                             fontx += this.prop.bordersize;
