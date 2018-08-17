@@ -6,14 +6,13 @@
         add filter to rect drawing
         make snapgrid smoother
         .menu import onClose is being removed from trim? confused on dis.
-        no save warning when you move a itemDef
-        when you remove text gives NaN error
         text font size is a bit off
         text that contains : wont load properly
     */
 
     //   FEATURES TO ADD   //
     /*
+        multiple save files
         convert save/load to json
         import header files
         default shader list
@@ -38,6 +37,7 @@
     var guideLines = false;
     var menuDefs = [];
     var unSaved = false;
+    var rectResize = false;
     const screenSize = {
         x: 640,
         y: 480
@@ -47,6 +47,10 @@
     //853x480 16:9
     //640*480 4:3
     const oldMousePos = {
+        x: 0,
+        y: 0
+    }
+    const snapPos = {
         x: 0,
         y: 0
     }
@@ -141,6 +145,7 @@
         
         this.buttonWarning = true;
         this.decorationWarning = true;
+        this.widthHeightWarning = true;
         this.textBlink = true;
         this.textBlinkAlpha = 1;
         this.find = false;
@@ -184,6 +189,14 @@
             if (this.decorationWarning && this.options.action && this.prop.action != "" && this.prop.type == 1 && this.options.decoration && this.prop.decoration == 1){
                 createNotification("Menu warning", "Button action will not work with decoration enabled");
                 this.decorationWarning = false;
+            }
+
+            if (this.prop.rect.width < 0 || this.prop.rect.height < 0){
+                if (this.widthHeightWarning){
+                    createNotification("Menu Warning", "ItemDef width and height can not be negative");
+                    this.widthHeightWarning = false;    
+                }
+                return;
             }
 
             if(this.options.visible){
@@ -713,6 +726,20 @@
             oldMousePos.x = event.clientX - cvn.left;
             oldMousePos.y = event.clientY - cvn.top;
             mouseClickFlag = true;
+            const mousepos = {
+                x: (event.clientX - cvn.left),
+                y: (event.clientY - cvn.top)
+            }
+            if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] != undefined){
+                const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
+                const item = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef];
+                if (mousepos.x > item.drawPos.x + (rect.width * zoomAmount) && mousepos.x < item.drawPos.x + (rect.width * zoomAmount) + 30 && mousepos.y > item.drawPos.y + (rect.height * zoomAmount) && mousepos.y < item.drawPos.y + (rect.height * zoomAmount) + 30) {
+                    rectResize = true;
+                    return;
+                }
+            }
+            rectResize = false;
+            
         })
         document.addEventListener("mouseup", () =>{
             mouseClickFlag = false;
@@ -864,24 +891,71 @@
     animateRect = (mousepos, event) =>{
         if (menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef] == undefined) return;
         const rect = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef].prop.rect;
-        const item = menuDefs[selectedMenuDef].itemDefList[menuDefs[selectedMenuDef].selectedItemDef];
+        const cvn = canvas.getBoundingClientRect();
 
-        if (mousepos.x > item.drawPos.x + (rect.width * zoomAmount) && mousepos.x < item.drawPos.x + (rect.width * zoomAmount) + 30 && mousepos.y > item.drawPos.y + (rect.height * zoomAmount) && mousepos.y < item.drawPos.y + (rect.height*zoomAmount) + 30){
-            rect.width +=  (mousepos.x - oldMousePos.x) / zoomAmount;
-            rect.height += (mousepos.y - oldMousePos.y) / zoomAmount;
+        if(gridSnap == 1){
+            if (rectResize){
+                rect.width += (mousepos.x - oldMousePos.x) / zoomAmount;
+                rect.height += (mousepos.y - oldMousePos.y) / zoomAmount;
+            }
+            else{
+                rect.x += ((mousepos.x - oldMousePos.x) / zoomAmount);
+                rect.y += ((mousepos.y - oldMousePos.y) / zoomAmount);
+            }  
         }
         else{
             //snapping
-            const xval = rect.x + ((mousepos.x - oldMousePos.x) / zoomAmount);
-            const yval = rect.y + ((mousepos.y - oldMousePos.y) / zoomAmount);
-            //check if pos needs to be rounded up or down
-            rect.x = (xval % gridSnap) > gridSnap / 2 ? Math.ceil(xval / gridSnap) * gridSnap : Math.floor(xval / gridSnap) * gridSnap;
-            rect.y = (yval % gridSnap) > gridSnap / 2 ? Math.ceil(yval / gridSnap) * gridSnap : Math.floor(yval / gridSnap) * gridSnap;
+            const moveAmount = gridSnap * zoomAmount;
+            if (mousepos.x - snapPos.x >= moveAmount) {               
+                if(rectResize){
+                    const newX = rect.width + gridSnap;
+                    rect.width = Math.ceil(newX / gridSnap) * gridSnap;
+                }
+                else{
+                    const newX = rect.x + gridSnap;
+                    rect.x = Math.ceil(newX / gridSnap) * gridSnap;
+                }  
+                snapPos.x = mousepos.x;
+            }
+            if (mousepos.x - snapPos.x <= moveAmount * -1) {
+                if(rectResize){
+                    const newX = rect.width - gridSnap;
+                    rect.width = Math.ceil(newX / gridSnap) * gridSnap;
+                }
+                else{
+                    const newX = rect.x - gridSnap;
+                    rect.x = Math.ceil(newX / gridSnap) * gridSnap;
+                }
+                snapPos.x = mousepos.x;
+            }
+            if (mousepos.y - snapPos.y >= moveAmount) {
+                if(rectResize){
+                    const newY = rect.height + gridSnap;
+                    rect.height = Math.ceil(newY / gridSnap) * gridSnap;
+                }
+                else{
+                    const newY = rect.y + gridSnap;
+                    rect.y = Math.ceil(newY / gridSnap) * gridSnap;
+                }
+                snapPos.y = mousepos.y;
+            }
+            if (mousepos.y - snapPos.y <= moveAmount * -1) {
+                if(rectResize){
+                    const newY = rect.height - gridSnap;
+                    rect.height = Math.ceil(newY / gridSnap) * gridSnap;
+                }
+                else{
+                    const newY = rect.y - gridSnap;
+                    rect.y = Math.ceil(newY / gridSnap) * gridSnap;
+                }
+                
+                snapPos.y = mousepos.y;
+            }
         }
         
-        const cvn = canvas.getBoundingClientRect();
         oldMousePos.x = event.clientX - cvn.left;
         oldMousePos.y = event.clientY - cvn.top;
+        
         updateOptions();
     }
 
@@ -1480,15 +1554,20 @@
                     }
                     if (def != null) {
                         if (id2 != null) {
-                            if (!isNaN(event.target.value)){
+                            if (event.target.value == "") {
+                                def.prop[id2][tkn[0]] = "";
+                            }
+                            else if (!isNaN(event.target.value)){
                                 def.prop[id2][tkn[0]] = parseFloat(event.target.value);
                             }
                             else{
-                                
                                 def.prop[id2][tkn[0]] = event.target.value;
                             }  
                         } else {
-                            if(!isNaN(event.target.value)){
+                            if(event.target.value == ""){
+                                def.prop[tkn[0]] = "";
+                            }
+                            else if (!isNaN(event.target.value)){
                                 def.prop[tkn[0]] = parseFloat(event.target.value);
                             }
                             else{
@@ -1588,6 +1667,7 @@
         
         function setElmValue(element, val, enabled, op) {
             //enabled check box
+            unSaved = true;
             var enabledbox;
             if(op != null){
                 enabledbox = document.getElementById(op + "_enable");
