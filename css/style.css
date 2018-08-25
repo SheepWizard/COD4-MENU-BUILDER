@@ -129,6 +129,26 @@ select{
     color: #fff;
 }
 
+.saveLoadMenu{
+    display: none;
+    width: 60%;
+    height: 80%;
+    background-color: #333;
+    position: absolute;
+    margin-left: 35%;
+    margin-right: 20%;
+    margin-top: 3%;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.saveLoadHeader{
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 35px;
+    color: #fff;
+    text-decoration: underline;
+}
+
 
 
 /* Style page content */
@@ -226,6 +246,7 @@ notification
     padding: 10px;
     display: none;
     margin-top: 10px;
+    z-index: 100;
 }
 .notificationHeader{
     text-align: center;

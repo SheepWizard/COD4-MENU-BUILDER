@@ -43,7 +43,7 @@
 
             <p1 id="optiontoggle" class="cursor extrathicc">Builder Options</p1>
             
-            <div class="buildoptions optionbackground" style="display: none">
+            <div class="buildoptions optionbackground" style="display: block">
                 <button type="button" class="btn1 margin-10px" id="export">Export menu</button>
                 <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
                 <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
@@ -65,9 +65,9 @@
 
             <p1 id="saveloadtoggle" class="cursor extrathicc">Save / Load</p1>
             
-            <div class="saveload optionbackground" style="display: none">
-                <button type="button" class="btn1 margin-10px" onclick="localStorageSave()">Save progress</button>
-                <button type="button" class="btn1" onclick="localStorageLoad()">Load progress </button>
+            <div class="saveload optionbackground" style="display: block">
+                <button type="button" class="btn1 margin-10px" onclick="loadSaveMenu()">Save/Load Progress</button>
+
                 <button type="button" class="btn1 margin-10px" onclick="saveProgressFile()">Save progress File</button>
                 <div class="upload-btn-wrapper">
                     <button type="button" class="btn1 margin-10px" id="">Upload progress File</button>
@@ -626,6 +626,19 @@
             </div>
         </div>
 
+        <div id="saveLoadMenu" class="saveLoadMenu">
+            <button type="button" id="loadsaveexit" class="notificationExit">X</button>
+            <h1 class="saveLoadHeader">Save files</h1>
+            <button type="button" class="btn1" onclick="createNewSave()">Create new save</button>
+            <textarea row="1" class="optionstextbox" placeholder="Project name" id="projectName"></textarea>
+            
+
+                           
+            <table id="loadSaveTable">
+
+            </table>
+        </div>
+
 
         <!-- hidden images used for canvas -->
         <img id="screen_image_1" style="display: none;" src="images/screen_image_1.jpg">
@@ -634,51 +647,51 @@
 
     <!-- Toggle script -->
     <script>
-        $(document).ready(function(){
-            $("#menutoggle").click(function(){
-                $(".menudefoptions").slideToggle(500);
-            });
-        });
-        $(document).ready(function () {
-                $("#classtoggle").click(function () {
-                    $(".itemdefoptions").slideToggle(500);
-                });
-            });
-        $(document).ready(function () {
-                $("#optiontoggle").click(function () {
-                    $(".buildoptions").slideToggle();
-                });
-            });
-        $(document).ready(function () {
-                $("#helptoggle").click(function () {
-                    $(".helpoptions").slideToggle(500);
-                });
-            });
-        $(document).ready(function () {
-                $("#menudeflisttoggle").click(function () {
-                    $(".menudeflistdiv").slideToggle(500);
-                });
-            });
-         $(document).ready(function () {
-                $("#itemdeftoggle").click(function () {
-                    $(".itemdeftogglelist").slideToggle(500);
-                });
-            });
-        $(document).ready(function () {
-            $("#introtoggle").click(function () {
-                $(".introtoggle").slideToggle(500);
-            });
-        });
-        $(document).ready(function () {
-            $("#imagelisttoggle").click(function () {
-                $(".imagelisttoggle").slideToggle(500);
-            });
-        });
-        $(document).ready(function () {
-                $("#saveloadtoggle").click(function () {
-                    $(".saveload").slideToggle(500);
-                });
-            });
+        // $(document).ready(function(){
+        //     $("#menutoggle").click(function(){
+        //         $(".menudefoptions").slideToggle(500);
+        //     });
+        // });
+        // $(document).ready(function () {
+        //         $("#classtoggle").click(function () {
+        //             $(".itemdefoptions").slideToggle(500);
+        //         });
+        //     });
+        // $(document).ready(function () {
+        //         $("#optiontoggle").click(function () {
+        //             $(".buildoptions").slideToggle();
+        //         });
+        //     });
+        // $(document).ready(function () {
+        //         $("#helptoggle").click(function () {
+        //             $(".helpoptions").slideToggle(500);
+        //         });
+        //     });
+        // $(document).ready(function () {
+        //         $("#menudeflisttoggle").click(function () {
+        //             $(".menudeflistdiv").slideToggle(500);
+        //         });
+        //     });
+        //  $(document).ready(function () {
+        //         $("#itemdeftoggle").click(function () {
+        //             $(".itemdeftogglelist").slideToggle(500);
+        //         });
+        //     });
+        // $(document).ready(function () {
+        //     $("#introtoggle").click(function () {
+        //         $(".introtoggle").slideToggle(500);
+        //     });
+        // });
+        // $(document).ready(function () {
+        //     $("#imagelisttoggle").click(function () {
+        //         $(".imagelisttoggle").slideToggle(500);
+        //     });
+        // });
+        // $(document).ready(function () {
+        //         $("#saveloadtoggle").click(function () {
+        //             $(".saveload").slideToggle(500);
+        //         });
+        //     });
 
             
         

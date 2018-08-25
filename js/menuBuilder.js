@@ -38,6 +38,7 @@
     var menuDefs = [];
     var unSaved = false;
     var rectResize = false;
+    var projectName = "project_1";
     const screenSize = {
         x: 640,
         y: 480
@@ -720,6 +721,8 @@
                 }
             }
         })
+
+        
 
         menuCanvas.addEventListener("mousedown", (event) => {
             const cvn = canvas.getBoundingClientRect();
@@ -1756,18 +1759,92 @@
                     createNotification("File error", "An error occurred reading this file.");
             }
         }
-        localStorageSave = () => {
+        localStorageSave = (itemName) => {
             const string = createSaveText();
-            localStorage.setItem("menu", string);
+            localStorage.setItem(itemName, string);
             unSaved = false;
             createNotification("Progress saved", "Progress saved. Select 'Load progress' to reload your menu.");
         }
-        localStorageLoad = () => {
+        localStorageLoad = (itemName) => {
             if (confirm("Any unsaved progress will be lost")) {
-                const save = localStorage.getItem("menu");
+                const save = localStorage.getItem(itemName);
                 if(save != undefined){
                     loadSave(save);
                 }
+            }
+        }
+
+        createNewSave = () =>{
+            const name = document.getElementById("projectName").value;
+            localStorageSave(name);
+            projectName = name; 
+            createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
+        
+
+        }
+
+        loadSaveMenu = () =>{
+            const div = document.getElementById("saveLoadMenu");
+            div.style.display = "block";
+            const saves = [];
+
+            const button = div.childNodes[1];
+            button.addEventListener("click", (event) =>{
+                document.getElementById(event.target.id).parentNode.style.display = "none";
+            })
+
+            const table = document.getElementById("loadSaveTable");
+            table.innerHTML = "";
+            for(var i = 0; i< localStorage.length; i++){
+                saves.push(localStorage.key(i));
+            }
+
+            for (var i = 0; i < saves.length; i++){
+                const tr = document.createElement("tr");
+                //display is slot is empty or not
+                const text = document.createElement("td").appendChild(document.createTextNode("Save File " + (saves[i])));
+                tr.appendChild(text);
+
+                //save slot button
+                const td = document.createElement("td");
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "btn1";
+                button.id = "saveButton_"+saves[i];
+                button.appendChild(document.createTextNode("Save to slot "+ (i+1)));
+                button.addEventListener("click", (event) =>{
+                    const id = event.target.id.split("_")[1];
+                    if(localStorage.getItem("menu"+id) != undefined){
+                        if(confirm("Do you want to override this slot")){
+                            localStorageSave(id);
+                            createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
+                        }
+                    }
+                    else{
+                        localStorageSave(id);
+                        createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
+                    }
+                })
+                td.appendChild(button);
+
+                //load slot button
+                const td2 = document.createElement("td");
+                const button2 = document.createElement("button");
+                button2.type = "button";
+                button2.className = "btn1";
+                button2.id = "loadButton_"+saves[i];
+                button2.appendChild(document.createTextNode("Load to slot " + (i+1)));
+                button2.addEventListener("click", (event) =>{
+                    const id = event.target.id.split("_")[1];
+                    localStorageLoad(id);
+                    createNotification("Menu loaded", "Your menu has been loaded from local storage");
+                })
+                td2.appendChild(button2);
+               
+                tr.appendChild(td);
+                tr.appendChild(td2);
+
+                table.appendChild(tr);
             }
         }
 
