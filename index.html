@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/memes.js"></script>
     </head>
 
@@ -66,8 +66,8 @@
             <p1 id="saveloadtoggle" class="cursor extrathicc">Save / Load</p1>
             
             <div class="saveload optionbackground" style="display: none">
-                <button type="button" class="btn1 margin-10px" onclick="localStorageSave()">Save progress</button>
-                <button type="button" class="btn1" onclick="localStorageLoad()">Load progress </button>
+                <button type="button" class="btn1 margin-10px" onclick="quickSave()">Quick Save</button>
+                <button type="button" class="btn1 margin-10px" onclick="loadSaveMenu()">Save/Load Progress</button>
                 <button type="button" class="btn1 margin-10px" onclick="saveProgressFile()">Save progress File</button>
                 <div class="upload-btn-wrapper">
                     <button type="button" class="btn1 margin-10px" id="">Upload progress File</button>
@@ -624,6 +624,19 @@
                 <h1 class="notificationHeader"></h1>
                 <p1 class="notificationText" id="notificationText"></p1>
             </div>
+        </div>
+
+        <div id="saveLoadMenu" class="saveLoadMenu">
+            <button type="button" id="loadsaveexit" class="notificationExit">X</button>
+            <h1 class="saveLoadHeader">Save files</h1>
+            <button type="button" class="btn1" onclick="createNewSave()">Create new save</button>
+            <textarea row="1" class="optionstextbox" placeholder="Project name" id="projectName"></textarea>
+            
+
+                           
+            <table id="loadSaveTable" class="loadSaveTable">
+
+            </table>
         </div>
 
 
