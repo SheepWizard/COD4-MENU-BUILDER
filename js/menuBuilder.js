@@ -4,7 +4,6 @@
     /*
         fullscreen alignment needs to stretch itemdef
         add filter to rect drawing
-        make snapgrid smoother
         .menu import onClose is being removed from trim? confused on dis.
         text font size is a bit off
         text that contains : wont load properly
@@ -12,7 +11,6 @@
 
     //   FEATURES TO ADD   //
     /*
-        multiple save files
         convert save/load to json
         import header files
         default shader list
@@ -38,7 +36,7 @@
     var menuDefs = [];
     var unSaved = false;
     var rectResize = false;
-    var projectName = "project_1";
+    var projectName = "";
     const screenSize = {
         x: 640,
         y: 480
@@ -1763,10 +1761,11 @@
             const string = createSaveText();
             localStorage.setItem(itemName, string);
             unSaved = false;
-            createNotification("Progress saved", "Progress saved. Select 'Load progress' to reload your menu.");
+            createNotification("Progress saved", "Your menu has been saved to local storage.");
         }
         localStorageLoad = (itemName) => {
             if (confirm("Any unsaved progress will be lost")) {
+                projectName = itemName;
                 const save = localStorage.getItem(itemName);
                 if(save != undefined){
                     loadSave(save);
@@ -1776,10 +1775,32 @@
 
         createNewSave = () =>{
             const name = document.getElementById("projectName").value;
+            if(name == ""){
+                createNotification("No project name", "Please enter a project name");
+                return;
+            }
+            for (var i = 0; i < localStorage.length; i++) {
+                if(name == localStorage.key(i)){
+                    createNotification("Duplicate name", "You already have a project saved with that name");
+                    return;
+                }
+            }
+
             localStorageSave(name);
-            projectName = name; 
-            createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
-        
+            projectName = name;
+            loadSaveMenu();
+        }
+
+        //add quick save for saving existing project
+        //make it look nice lol
+
+        quickSave = () =>{
+            if(projectName == ""){
+                createNotification("No project save", "You have not created a project save file");
+                return;
+            }
+            localStorageSave(projectName);
+            unSaved = false;
 
         }
 
@@ -1802,7 +1823,15 @@
             for (var i = 0; i < saves.length; i++){
                 const tr = document.createElement("tr");
                 //display is slot is empty or not
-                const text = document.createElement("td").appendChild(document.createTextNode("Save File " + (saves[i])));
+                var saveName;
+                if(saves[i].length > 20){
+                    saveName = saves[i].substring(0, 19) + "...";
+                }
+                else{
+                    saveName = saves[i];
+                }
+                const text = document.createElement("td").appendChild(document.createTextNode(saveName));
+
                 tr.appendChild(text);
 
                 //save slot button
@@ -1811,18 +1840,21 @@
                 button.type = "button";
                 button.className = "btn1";
                 button.id = "saveButton_"+saves[i];
-                button.appendChild(document.createTextNode("Save to slot "+ (i+1)));
+                button.appendChild(document.createTextNode("Save"));
                 button.addEventListener("click", (event) =>{
                     const id = event.target.id.split("_")[1];
-                    if(localStorage.getItem("menu"+id) != undefined){
-                        if(confirm("Do you want to override this slot")){
-                            localStorageSave(id);
-                            createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
+                    if(localStorage.getItem(id) != undefined){
+                        if(projectName != id){
+                            if (confirm("Do you want to override this slot")) {
+                                localStorageSave(id);
+                            }
                         }
+                        else{
+                            localStorageSave(id);
+                        }  
                     }
                     else{
                         localStorageSave(id);
-                        createNotification("Menu saved", "Your menu have be saved to local storage in slot " + id);
                     }
                 })
                 td.appendChild(button);
@@ -1833,16 +1865,31 @@
                 button2.type = "button";
                 button2.className = "btn1";
                 button2.id = "loadButton_"+saves[i];
-                button2.appendChild(document.createTextNode("Load to slot " + (i+1)));
+                button2.appendChild(document.createTextNode("Load"));
                 button2.addEventListener("click", (event) =>{
                     const id = event.target.id.split("_")[1];
                     localStorageLoad(id);
                     createNotification("Menu loaded", "Your menu has been loaded from local storage");
                 })
                 td2.appendChild(button2);
-               
+
+                //delete button
+                const td3 = document.createElement("td");
+                const button3 = document.createElement("button");
+                button3.type = "button";
+                button3.className = "btn1";
+                button3.id = "deletebutton_"+saves[i];
+                button3.appendChild(document.createTextNode("Delete"));
+                button3.addEventListener("click", (event) =>{
+                    const id = event.target.id.split("_")[1];
+                    localStorage.removeItem(id);
+                    loadSaveMenu();
+                })
+                td3.appendChild(button3);
+
                 tr.appendChild(td);
                 tr.appendChild(td2);
+                tr.appendChild(td3);
 
                 table.appendChild(tr);
             }
@@ -1936,7 +1983,6 @@
             updateMenuDefTable();
             updateItemDefTable();
             updateOptions();
-            createNotification("Save file loaded", "Select a MenuDef to continue working on your menu.");
         }
         
         loadMenuSave = (menuText) => {

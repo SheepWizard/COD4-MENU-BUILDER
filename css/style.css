@@ -131,9 +131,10 @@ select{
 
 .saveLoadMenu{
     display: none;
-    width: 60%;
+    min-width: 30%;
+    max-width: 50%;
     height: 80%;
-    background-color: #333;
+    background-color: #111;
     position: absolute;
     margin-left: 35%;
     margin-right: 20%;
@@ -147,6 +148,14 @@ select{
     font-size: 35px;
     color: #fff;
     text-decoration: underline;
+}
+
+.loadSaveTable{
+    font-family: 'Courier New', Courier, monospace;
+    color: #fff;
+}
+.loadSaveTable tr{
+    text-align: center;
 }
 
 

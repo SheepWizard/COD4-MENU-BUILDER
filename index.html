@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="css/style.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/memes.js"></script>
     </head>
 
@@ -43,7 +43,7 @@
 
             <p1 id="optiontoggle" class="cursor extrathicc">Builder Options</p1>
             
-            <div class="buildoptions optionbackground" style="display: block">
+            <div class="buildoptions optionbackground" style="display: none">
                 <button type="button" class="btn1 margin-10px" id="export">Export menu</button>
                 <button type="button" class="btn1 margin-10px" id="zoomin">Zoom in</button>
                 <button type="button" class="btn1 margin-10px" id="zoomout">Zoom out</button>
@@ -65,9 +65,9 @@
 
             <p1 id="saveloadtoggle" class="cursor extrathicc">Save / Load</p1>
             
-            <div class="saveload optionbackground" style="display: block">
+            <div class="saveload optionbackground" style="display: none">
+                <button type="button" class="btn1 margin-10px" onclick="quickSave()">Quick Save</button>
                 <button type="button" class="btn1 margin-10px" onclick="loadSaveMenu()">Save/Load Progress</button>
-
                 <button type="button" class="btn1 margin-10px" onclick="saveProgressFile()">Save progress File</button>
                 <div class="upload-btn-wrapper">
                     <button type="button" class="btn1 margin-10px" id="">Upload progress File</button>
@@ -634,7 +634,7 @@
             
 
                            
-            <table id="loadSaveTable">
+            <table id="loadSaveTable" class="loadSaveTable">
 
             </table>
         </div>
@@ -647,51 +647,51 @@
 
     <!-- Toggle script -->
     <script>
-        // $(document).ready(function(){
-        //     $("#menutoggle").click(function(){
-        //         $(".menudefoptions").slideToggle(500);
-        //     });
-        // });
-        // $(document).ready(function () {
-        //         $("#classtoggle").click(function () {
-        //             $(".itemdefoptions").slideToggle(500);
-        //         });
-        //     });
-        // $(document).ready(function () {
-        //         $("#optiontoggle").click(function () {
-        //             $(".buildoptions").slideToggle();
-        //         });
-        //     });
-        // $(document).ready(function () {
-        //         $("#helptoggle").click(function () {
-        //             $(".helpoptions").slideToggle(500);
-        //         });
-        //     });
-        // $(document).ready(function () {
-        //         $("#menudeflisttoggle").click(function () {
-        //             $(".menudeflistdiv").slideToggle(500);
-        //         });
-        //     });
-        //  $(document).ready(function () {
-        //         $("#itemdeftoggle").click(function () {
-        //             $(".itemdeftogglelist").slideToggle(500);
-        //         });
-        //     });
-        // $(document).ready(function () {
-        //     $("#introtoggle").click(function () {
-        //         $(".introtoggle").slideToggle(500);
-        //     });
-        // });
-        // $(document).ready(function () {
-        //     $("#imagelisttoggle").click(function () {
-        //         $(".imagelisttoggle").slideToggle(500);
-        //     });
-        // });
-        // $(document).ready(function () {
-        //         $("#saveloadtoggle").click(function () {
-        //             $(".saveload").slideToggle(500);
-        //         });
-        //     });
+        $(document).ready(function(){
+            $("#menutoggle").click(function(){
+                $(".menudefoptions").slideToggle(500);
+            });
+        });
+        $(document).ready(function () {
+                $("#classtoggle").click(function () {
+                    $(".itemdefoptions").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+                $("#optiontoggle").click(function () {
+                    $(".buildoptions").slideToggle();
+                });
+            });
+        $(document).ready(function () {
+                $("#helptoggle").click(function () {
+                    $(".helpoptions").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+                $("#menudeflisttoggle").click(function () {
+                    $(".menudeflistdiv").slideToggle(500);
+                });
+            });
+         $(document).ready(function () {
+                $("#itemdeftoggle").click(function () {
+                    $(".itemdeftogglelist").slideToggle(500);
+                });
+            });
+        $(document).ready(function () {
+            $("#introtoggle").click(function () {
+                $(".introtoggle").slideToggle(500);
+            });
+        });
+        $(document).ready(function () {
+            $("#imagelisttoggle").click(function () {
+                $(".imagelisttoggle").slideToggle(500);
+            });
+        });
+        $(document).ready(function () {
+                $("#saveloadtoggle").click(function () {
+                    $(".saveload").slideToggle(500);
+                });
+            });
 
             
         
