@@ -68,3 +68,5 @@ menuCheck()
 }
 ```
 
+If you get an error when opening the menu saying it cant find the file, change the menuDef name to the same name as the file. It should fix the problem.
+
